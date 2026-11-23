@@ -30,6 +30,8 @@ export interface EmployeeRow {
   hireDate: string;
   status: 'active' | 'left';
   leftDate: string | null;
+  updatedAt: string;
+  updatedBy: string;
 }
 
 export interface EmployeePage {
@@ -98,6 +100,8 @@ export function findEmployees(db: AppDatabase, filters: EmployeeFilters = {}): E
       hireDate: employees.hireDate,
       status: employees.status,
       leftDate: employees.leftDate,
+      updatedAt: employees.updatedAt,
+      updatedBy: employees.updatedBy,
     })
     .from(employees)
     .innerJoin(jobTitles, eq(jobTitles.id, employees.jobTitleId))
@@ -150,4 +154,36 @@ export function updateEmployeeWithSalaryChange(
       tx.insert(salaryChanges).values(change).run();
     }
   });
+}
+
+export interface SalaryChangeRecord {
+  oldSalaryMinor: number;
+  newSalaryMinor: number;
+  effectiveDate: string;
+  reason: 'raise' | 'promotion' | 'correction';
+  changedBy: string;
+  changedAt: string;
+}
+
+/**
+ * One employee's salary changes, newest first.
+ *
+ * Two changes can share an effective date, so the id breaks the tie: the one
+ * recorded last comes first. Without a second key SQLite is free to return
+ * them in either order, and the page would reshuffle between loads.
+ */
+export function findSalaryHistory(db: AppDatabase, employeeId: number): SalaryChangeRecord[] {
+  return db
+    .select({
+      oldSalaryMinor: salaryChanges.oldSalaryMinor,
+      newSalaryMinor: salaryChanges.newSalaryMinor,
+      effectiveDate: salaryChanges.effectiveDate,
+      reason: salaryChanges.reason,
+      changedBy: salaryChanges.changedBy,
+      changedAt: salaryChanges.changedAt,
+    })
+    .from(salaryChanges)
+    .where(eq(salaryChanges.employeeId, employeeId))
+    .orderBy(desc(salaryChanges.effectiveDate), desc(salaryChanges.id))
+    .all();
 }

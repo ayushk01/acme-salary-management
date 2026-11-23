@@ -11,6 +11,8 @@ export interface EmployeeSummary {
   hireDate: string;
   status: 'active' | 'left';
   leftDate: string | null;
+  updatedAt: string;
+  updatedBy: string;
 }
 
 export interface EmployeeListResult {
@@ -24,4 +26,17 @@ export interface ReferenceLists {
   countries: { code: string; name: string; currencyCode: string; currencyMinorUnit: number }[];
   jobTitles: { id: number; name: string }[];
   departments: { id: number; name: string }[];
+}
+
+export interface SalaryHistoryRow {
+  oldSalary: Money;
+  newSalary: Money;
+  effectiveDate: string;
+  reason: 'raise' | 'promotion' | 'correction';
+  changedBy: string;
+  changedAt: string;
+}
+
+export interface SalaryHistoryResult {
+  rows: SalaryHistoryRow[];
 }

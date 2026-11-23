@@ -1,7 +1,15 @@
 import type { AppDatabase } from '../db/connection.js';
+import { eq } from 'drizzle-orm';
+
 import { countries, departments, jobTitles } from '../db/schema.js';
 import { DEFAULT_PAGE_SIZE } from '../domain/paging.js';
-import { type EmployeeFilters, findEmployees } from '../repositories/employeeRepository.js';
+import {
+  type EmployeeFilters,
+  findEmployeeByCode,
+  findEmployees,
+  findSalaryHistory,
+} from '../repositories/employeeRepository.js';
+import { employeeNotFound } from './serviceError.js';
 
 export interface Money {
   amountMinor: number;
@@ -20,6 +28,9 @@ export interface EmployeeSummary {
   hireDate: string;
   status: 'active' | 'left';
   leftDate: string | null;
+  /** Who last touched this record, and when. The Must-level audit answer. */
+  updatedAt: string;
+  updatedBy: string;
 }
 
 export interface EmployeeListResult {
@@ -53,6 +64,8 @@ export function listEmployees(db: AppDatabase, filters: EmployeeFilters): Employ
       hireDate: row.hireDate,
       status: row.status,
       leftDate: row.leftDate,
+      updatedAt: row.updatedAt,
+      updatedBy: row.updatedBy,
     })),
     page: filters.page ?? 1,
     pageSize: filters.pageSize ?? DEFAULT_PAGE_SIZE,
@@ -97,5 +110,47 @@ export function listReference(db: AppDatabase): ReferenceLists {
       .from(departments)
       .orderBy(departments.name)
       .all(),
+  };
+}
+
+export interface SalaryHistoryRow {
+  oldSalary: Money;
+  newSalary: Money;
+  effectiveDate: string;
+  reason: 'raise' | 'promotion' | 'correction';
+  changedBy: string;
+  changedAt: string;
+}
+
+/**
+ * One employee's pay over time.
+ *
+ * Both amounts carry the employee's own currency, because a history row is
+ * meaningless without it and the browser must never have to guess.
+ */
+export function listSalaryHistory(db: AppDatabase, code: string): { rows: SalaryHistoryRow[] } {
+  const employee = findEmployeeByCode(db, code);
+  if (employee === undefined) {
+    throw employeeNotFound(code);
+  }
+
+  const country = db
+    .select({ currencyCode: countries.currencyCode, minorUnit: countries.currencyMinorUnit })
+    .from(countries)
+    .where(eq(countries.code, employee.countryCode))
+    .get();
+
+  const currency = country?.currencyCode ?? '';
+  const minorUnit = country?.minorUnit ?? 2;
+
+  return {
+    rows: findSalaryHistory(db, employee.id).map((change) => ({
+      oldSalary: { amountMinor: change.oldSalaryMinor, currency, minorUnit },
+      newSalary: { amountMinor: change.newSalaryMinor, currency, minorUnit },
+      effectiveDate: change.effectiveDate,
+      reason: change.reason,
+      changedBy: change.changedBy,
+      changedAt: change.changedAt,
+    })),
   };
 }

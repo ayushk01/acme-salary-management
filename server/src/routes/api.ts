@@ -4,7 +4,7 @@ import { z } from 'zod';
 import type { AppDatabase } from '../db/connection.js';
 import type { Clock } from '../domain/clock.js';
 import { MAX_PAGE_SIZE } from '../domain/paging.js';
-import { listEmployees, listReference } from '../services/employeeService.js';
+import { listEmployees, listReference, listSalaryHistory } from '../services/employeeService.js';
 import {
   createEmployee,
   editEmployee,
@@ -121,6 +121,14 @@ export function createApiRouter(db: AppDatabase, clock: Clock): Router {
 
   router.get('/reference', (_req, res) => {
     res.json(listReference(db));
+  });
+
+  router.get('/employees/:code/salary-history', (req, res) => {
+    try {
+      res.json(listSalaryHistory(db, req.params.code));
+    } catch (error) {
+      handleServiceError(error, res);
+    }
   });
 
   router.post('/employees', (req, res) => {

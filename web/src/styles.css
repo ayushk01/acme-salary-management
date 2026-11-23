@@ -177,3 +177,13 @@ a.button {
 .leaving h2 {
   font-size: 1rem;
 }
+
+.history {
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.history h2 {
+  font-size: 1rem;
+}

@@ -2,9 +2,16 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { ApiError, apiGet, apiSend } from '../api/client.js';
-import type { EmployeeListResult, EmployeeSummary, ReferenceLists } from '../api/types.js';
+import type {
+  EmployeeListResult,
+  EmployeeSummary,
+  ReferenceLists,
+  SalaryHistoryResult,
+  SalaryHistoryRow,
+} from '../api/types.js';
 import { localDateIso } from '../dates.js';
 import { type EmployeeInput, EmployeeForm } from './EmployeeForm.js';
+import { SalaryHistory } from './SalaryHistory.js';
 
 /** Serves both adding and editing: the only difference is whether a code exists. */
 export function EmployeeFormPage({ editing }: { editing: boolean }) {
@@ -17,6 +24,7 @@ export function EmployeeFormPage({ editing }: { editing: boolean }) {
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [leftDate, setLeftDate] = useState('');
+  const [history, setHistory] = useState<SalaryHistoryRow[]>([]);
 
   useEffect(() => {
     apiGet<ReferenceLists>('/api/reference')
@@ -31,6 +39,10 @@ export function EmployeeFormPage({ editing }: { editing: boolean }) {
     apiGet<EmployeeListResult>(`/api/employees?includeLeft=true&search=${encodeURIComponent(code)}`)
       .then((page) => setExisting(page.rows.find((row) => row.employeeCode === code) ?? null))
       .catch(() => setMessage('Could not load this employee.'));
+
+    apiGet<SalaryHistoryResult>(`/api/employees/${encodeURIComponent(code)}/salary-history`)
+      .then((result) => setHistory(result.rows))
+      .catch(() => setHistory([]));
   }, [code, editing]);
 
   const report = (caught: unknown) => {
@@ -115,6 +127,8 @@ export function EmployeeFormPage({ editing }: { editing: boolean }) {
           }
         />
       )}
+
+      {editing && existing !== null && <SalaryHistory employee={existing} rows={history} />}
 
       {editing && existing?.status === 'active' && (
         <section className="leaving">

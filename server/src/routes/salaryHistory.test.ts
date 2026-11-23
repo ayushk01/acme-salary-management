@@ -43,9 +43,11 @@ describe('GET /api/employees/:code/salary-history', () => {
     const response = await request(app()).get('/api/employees/EMP00001/salary-history');
 
     expect(response.status).toBe(200);
-    expect(response.body.rows.map((row: { newSalary: { amountMinor: number } }) => row.newSalary.amountMinor)).toEqual([
-      1_200_000, 1_100_000, 1_300_000,
-    ]);
+    expect(
+      response.body.rows.map(
+        (row: { newSalary: { amountMinor: number } }) => row.newSalary.amountMinor,
+      ),
+    ).toEqual([1_200_000, 1_100_000, 1_300_000]);
   });
 
   it('carries the old and new amounts, the date, the reason and who made it', async () => {
