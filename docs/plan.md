@@ -90,15 +90,15 @@ they are testable in milliseconds.*
 
 ### 8. Salary history and last-changed
 
-- [ ] `GET /api/employees/:code/salary-history`, newest first
-- [ ] Employee page: current salary, then old → new, effective date,
+- [x] `GET /api/employees/:code/salary-history`, newest first
+- [x] Employee page: current salary, then old → new, effective date,
       reason and who, per change
-- [ ] Who last changed the record and when, from the employee's own
+- [x] Who last changed the record and when, from the employee's own
       `updated_at/by`
-- [ ] Test: an employee with no changes shows no history rows
+- [x] Test: an employee with no changes shows no history rows
 
 *This is the Must-level answer to "who changed this, and when". The full
-per-field audit stays a Could — see slice 13.*
+per-field audit is cut — see the Cut section.*
 
 ### 9. Country overview
 
