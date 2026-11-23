@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatMoney, minorUnitsToDecimalString } from './money.js';
+import { formatMoney, localeForCountry, minorUnitsToDecimalString } from './money.js';
 
 /**
  * ICU separates currency symbols with non-breaking spaces, which are
@@ -34,6 +34,34 @@ describe('minorUnitsToDecimalString', () => {
   it('rejects an amount that is not a whole number of minor units', () => {
     expect(() => minorUnitsToDecimalString(12.5, 2)).toThrow(
       'Amount must be a whole number of minor units',
+    );
+  });
+});
+
+describe('localeForCountry', () => {
+  it('keeps the Indian grouping for India', () => {
+    expect(formatMoney({ amountMinor: 180_000_000, currency: 'INR', minorUnit: 2 }, localeForCountry('IN'))).toBe(
+      '₹18,00,000.00',
+    );
+  });
+
+  it('groups every other country in thousands', () => {
+    expect(formatMoney({ amountMinor: 14_000_000, currency: 'USD', minorUnit: 2 }, localeForCountry('US'))).toBe(
+      '$140,000.00',
+    );
+  });
+
+  // Three of our countries use a dollar. Formatted in their own locale all
+  // three render as a bare "$", which is unreadable side by side.
+  it('keeps Singapore dollars distinct from US dollars', () => {
+    expect(formatMoney({ amountMinor: 11_000_000, currency: 'SGD', minorUnit: 2 }, localeForCountry('SG'))).toBe(
+      'SGD 110,000.00',
+    );
+  });
+
+  it('shows yen with its symbol and no decimal places', () => {
+    expect(formatMoney({ amountMinor: 8_000_000, currency: 'JPY', minorUnit: 0 }, localeForCountry('JP'))).toBe(
+      '¥8,000,000',
     );
   });
 });
