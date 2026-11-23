@@ -487,6 +487,59 @@ proof, and I confirmed it green in the Render dashboard myself.
 
 ---
 
+## Slice 5 — the list API (2026-11-24)
+
+**What I asked.** Apply the boot-time wording, note the sleep warning on
+the README slice, commit the docs, then start slice 5.
+
+**What was built.** `GET /api/employees` and `GET /api/reference` through
+routes → services → repositories, with a pure paging module. Twenty-two
+new tests, sixty-three in all, still under a second.
+
+**Decisions worth recording.**
+
+- **The total is its own count query**, not a `COUNT(*) OVER ()` window
+  column. Against a synchronous in-process database the second query is
+  almost free, and repeating the total on every row to save it reads
+  worse. I let Claude make this call rather than stopping for it.
+- **Ordering breaks ties on employee code.** Sorting by name alone is not
+  a total order at 10,000 people, so two employees sharing a name could
+  appear on two pages or on none. This is the kind of bug that shows up
+  as "the list sometimes skips someone" weeks later.
+- **LIKE wildcards in the search term are escaped** with an explicit
+  ESCAPE clause. Without it, searching for "50%" matches everyone.
+  Claude raised this unprompted; I would not have thought of it.
+- **`createApp` now requires the database.** Making it optional would let
+  a wiring mistake surface as silently missing routes instead of a type
+  error. It cost a small edit to the existing health tests, which is the
+  right trade.
+
+**Measured, not assumed.** Against the seeded 10,000 employees the list
+endpoint answers in 1.4 ms to 17 ms, against the 500 ms budget in
+design.md. The slowest case is an unfiltered first page; the `LIKE`
+search that no index can serve came in at 17 ms, so the FTS5 fallback the
+design mentions stays unnecessary.
+
+**Where Claude was wrong.** Two of its own test expectations were wrong
+again, and in the same way as the rupee mistake in slice 2: asserting
+what it assumed rather than what the code would do. It expected page two
+of one to be the second employee *inserted*, when the default order is by
+name — "Asha Rao, Emma Smith, Ravi Menon" puts the third insert second.
+The implementation was right both times.
+
+It also wrote a nonsense `afterEach` shim at the bottom of a test file,
+reaching for a global instead of importing `afterEach` from vitest, and
+caught it on re-reading before running anything. Worth noting because
+nothing in the harness would have caught it as a *design* problem — it
+would simply have failed, confusingly.
+
+A pattern is forming: Claude's production code has been right nearly
+every time, and its test expectations wrong three times out of three
+slices. The tests still did their job, but it is the opposite of where I
+would have expected the errors.
+
+---
+
 ## Slice 4 — deterministic seed (2026-11-24)
 
 **What I asked.** Approve CLAUDE.md with two edits, add the build commit

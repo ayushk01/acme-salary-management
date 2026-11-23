@@ -62,11 +62,11 @@ they are testable in milliseconds.*
 
 ### 5. List API
 
-- [ ] `GET /api/employees` — search, filters, sort, paging, `{ rows, page,
+- [x] `GET /api/employees` — search, filters, sort, paging, `{ rows, page,
       pageSize, total }`
-- [ ] `GET /api/reference` for the dropdowns
-- [ ] Zod validation at the boundary, shared error shape
-- [ ] Tests: leavers hidden by default, filters combine, paging arithmetic
+- [x] `GET /api/reference` for the dropdowns
+- [x] Zod validation at the boundary, shared error shape
+- [x] Tests: leavers hidden by default, filters combine, paging arithmetic
 
 ### 6. List UI
 

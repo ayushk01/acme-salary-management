@@ -252,3 +252,21 @@ Approve CLAUDE.md with two edits, then commit as docs: add CLAUDE.md.
 
 Then start slice 4.
 ```
+
+---
+
+## Slice 5 — the list API (2026-11-24)
+
+### Main prompt
+
+```text
+Agreed: no pre-built database, and leave the boot-budget box unticked.
+
+Apply the design.md wording with two changes:
+1. Say it is one sample, taken on the boot right after a deploy.
+2. Add one sentence on the fix not taken: the seed is deterministic, so the database could be built at docker build time and shipped in the image; skipped as over-building for a demo.
+
+Add a note to the plan's README slice: the README must say the first load after the app sleeps can take up to a minute on the free tier.
+
+Commit the docs, then start slice 5.
+```
