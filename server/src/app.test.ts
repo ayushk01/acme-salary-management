@@ -24,6 +24,21 @@ describe('GET /api/health', () => {
 
     expect(response.body.commit).toBe('local');
   });
+
+  // With no persistent disk the database is rebuilt on every cold start, so
+  // this is a live measurement of the budget in docs/design.md section 8,
+  // readable from the deployed URL rather than only from a local run.
+  it('reports how long the database took to get ready', async () => {
+    const response = await request(createApp({ databaseMs: 327 })).get('/api/health');
+
+    expect(response.body.databaseMs).toBe(327);
+  });
+
+  it('omits the database timing when it was not measured', async () => {
+    const response = await request(createApp()).get('/api/health');
+
+    expect(response.body.databaseMs).toBeUndefined();
+  });
 });
 
 describe('an unknown API route', () => {
