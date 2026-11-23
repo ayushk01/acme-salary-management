@@ -1,43 +1,60 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
-type Health = 'checking' | 'ok' | 'unreachable';
+import { EmployeesPage } from './pages/EmployeesPage.js';
+import { getSessionName, setSessionName } from './session.js';
 
 /**
- * Placeholder shell for slice 1. Its only job is to prove the deployed
- * container serves the React build and can reach its own API. The employee
- * list and routing arrive in later slices.
+ * There is no login in v1, so changes are attributed to a name the user
+ * types once. Asking before the list appears keeps every later write
+ * attributable without a prompt interrupting the work.
  */
-export function App() {
-  const [health, setHealth] = useState<Health>('checking');
-
-  useEffect(() => {
-    let cancelled = false;
-
-    fetch('/api/health')
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('bad status'))))
-      .then((body: { status?: string }) => {
-        if (!cancelled) {
-          setHealth(body.status === 'ok' ? 'ok' : 'unreachable');
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setHealth('unreachable');
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+function NamePrompt({ onDone }: { onDone: (name: string) => void }) {
+  const [name, setName] = useState('');
 
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', padding: '2rem', lineHeight: 1.5 }}>
+    <main className="narrow">
       <h1>ACME Salary Management</h1>
-      <p>Deployment check for slice 1. The employee list arrives in a later slice.</p>
-      <p>
-        API: <strong>{health}</strong>
-      </p>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          const trimmed = name.trim();
+          if (trimmed !== '') {
+            setSessionName(trimmed);
+            onDone(trimmed);
+          }
+        }}
+      >
+        <label>
+          Your name
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="So changes can be attributed"
+            autoFocus
+          />
+        </label>
+        <button type="submit" disabled={name.trim() === ''}>
+          Continue
+        </button>
+      </form>
     </main>
+  );
+}
+
+export function App() {
+  const [name, setName] = useState(getSessionName);
+
+  if (name === '') {
+    return <NamePrompt onDone={setName} />;
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/employees" element={<EmployeesPage />} />
+        <Route path="*" element={<Navigate to="/employees" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

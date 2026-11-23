@@ -102,9 +102,7 @@ describe('searchFromFilters', () => {
   });
 
   it('escapes a search term containing URL characters', () => {
-    expect(searchFromFilters({ ...DEFAULT_FILTERS, search: 'rao & co' })).toBe(
-      'search=rao+%26+co',
-    );
+    expect(searchFromFilters({ ...DEFAULT_FILTERS, search: 'rao & co' })).toBe('search=rao+%26+co');
   });
 
   it('parsing what it wrote gives back the same filters', () => {
