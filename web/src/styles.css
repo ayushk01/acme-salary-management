@@ -253,3 +253,10 @@ td.above {
 td.below {
   color: var(--danger);
 }
+
+/* Effective dates are fixed-width and meaningless broken across two lines,
+   so the column widens instead of the date wrapping. */
+.history th:first-child,
+.history td:first-child {
+  white-space: nowrap;
+}
