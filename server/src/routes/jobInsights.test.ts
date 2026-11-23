@@ -57,9 +57,9 @@ describe('GET /api/insights/job/:id', () => {
     const response = await request(app()).get(`/api/insights/job/${sde2}`);
 
     expect(response.status).toBe(200);
-    expect(response.body.rows.map((row: { country: { code: string } }) => row.country.code)).toEqual(
-      ['IN', 'JP', 'US'],
-    );
+    expect(
+      response.body.rows.map((row: { country: { code: string } }) => row.country.code),
+    ).toEqual(['IN', 'JP', 'US']);
   });
 
   it('leaves out a country with nobody active in that job', async () => {

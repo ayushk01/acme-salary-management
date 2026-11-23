@@ -4,6 +4,7 @@ import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-do
 import { CountryOverviewPage } from './pages/CountryOverviewPage.js';
 import { EmployeeFormPage } from './pages/EmployeeFormPage.js';
 import { EmployeesPage } from './pages/EmployeesPage.js';
+import { JobOverviewPage } from './pages/JobOverviewPage.js';
 import { getSessionName, setSessionName } from './session.js';
 
 /**
@@ -56,6 +57,7 @@ export function App() {
       <nav className="top">
         <NavLink to="/employees">Employees</NavLink>
         <NavLink to="/insights/country">Pay by country</NavLink>
+        <NavLink to="/insights/job">Pay by job title</NavLink>
         <span className="who">Signed in as {name}</span>
       </nav>
       <Routes>
@@ -63,6 +65,7 @@ export function App() {
         <Route path="/employees/new" element={<EmployeeFormPage editing={false} />} />
         <Route path="/employees/:code/edit" element={<EmployeeFormPage editing />} />
         <Route path="/insights/country" element={<CountryOverviewPage />} />
+        <Route path="/insights/job" element={<JobOverviewPage />} />
         <Route path="*" element={<Navigate to="/employees" replace />} />
       </Routes>
     </BrowserRouter>

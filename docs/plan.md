@@ -109,9 +109,9 @@ per-field audit is cut — see the Cut section.*
 
 ### 10. Job overview
 
-- [ ] `GET /api/insights/job/:id` — one row per country, never combined
-- [ ] Page with a row per country
-- [ ] Test: two countries with different currencies stay separate
+- [x] `GET /api/insights/job/:id` — one row per country, never combined
+- [x] Page with a row per country
+- [x] Test: two countries with different currencies stay separate
 
 ### 11. CSV export
 

@@ -51,3 +51,19 @@ export interface CountryOverview {
   average: number | null;
   median: number | null;
 }
+
+export interface JobCountryRow {
+  country: { code: string; name: string };
+  currency: string;
+  minorUnit: number;
+  headcount: number;
+  min: number | null;
+  max: number | null;
+  average: number | null;
+  median: number | null;
+}
+
+export interface JobOverview {
+  jobTitle: { id: number; name: string };
+  rows: JobCountryRow[];
+}

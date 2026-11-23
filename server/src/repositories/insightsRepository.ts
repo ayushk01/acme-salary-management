@@ -56,3 +56,61 @@ export function countrySalaryStatistics(db: AppDatabase, countryCode: string): S
     median: row?.median ?? null,
   };
 }
+
+export interface CountryStatisticsRow extends SalaryStatistics {
+  countryCode: string;
+  countryName: string;
+  currencyCode: string;
+  currencyMinorUnit: number;
+}
+
+/**
+ * One job title's pay, a row per country.
+ *
+ * The same median window as above, with PARTITION BY country_code so the row
+ * numbering and the count restart for each country. Without the partition
+ * every row would report the figures for the whole world, which is both wrong
+ * and exactly the kind of wrong that looks plausible.
+ *
+ * Countries are never added together: salaries in different currencies have
+ * no meaningful sum.
+ */
+export function jobSalaryStatisticsByCountry(
+  db: AppDatabase,
+  jobTitleId: number,
+): CountryStatisticsRow[] {
+  return db.all<CountryStatisticsRow>(sql`
+    WITH active AS (
+      SELECT country_code, salary_minor
+      FROM employees
+      WHERE job_title_id = ${jobTitleId} AND status = 'active'
+    ),
+    ranked AS (
+      SELECT country_code, salary_minor,
+             ROW_NUMBER() OVER (PARTITION BY country_code ORDER BY salary_minor) AS rn,
+             COUNT(*)     OVER (PARTITION BY country_code)                       AS n
+      FROM active
+    ),
+    medians AS (
+      SELECT country_code, CAST(ROUND(AVG(salary_minor)) AS INTEGER) AS median
+      FROM ranked
+      WHERE rn IN ((n + 1) / 2, (n + 2) / 2)
+      GROUP BY country_code
+    )
+    SELECT
+      a.country_code                                  AS countryCode,
+      c.name                                          AS countryName,
+      c.currency_code                                 AS currencyCode,
+      c.currency_minor_unit                           AS currencyMinorUnit,
+      COUNT(*)                                        AS headcount,
+      MIN(a.salary_minor)                             AS min,
+      MAX(a.salary_minor)                             AS max,
+      CAST(ROUND(AVG(a.salary_minor)) AS INTEGER)     AS average,
+      m.median                                        AS median
+    FROM active a
+    JOIN countries c ON c.code = a.country_code
+    JOIN medians  m ON m.country_code = a.country_code
+    GROUP BY a.country_code, c.name, c.currency_code, c.currency_minor_unit, m.median
+    ORDER BY c.name
+  `);
+}
