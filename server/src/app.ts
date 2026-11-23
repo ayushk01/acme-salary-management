@@ -2,7 +2,16 @@ import path from 'node:path';
 
 import express, { type Express } from 'express';
 
+import type { AppDatabase } from './db/connection.js';
+import { createApiRouter } from './routes/api.js';
+
 export interface AppOptions {
+  /**
+   * The database every endpoint reads from. Required: an app without one
+   * cannot serve anything useful, and making it optional would let a wiring
+   * mistake show up as silently missing routes rather than a type error.
+   */
+  db: AppDatabase;
   /**
    * Directory holding the built React app. Left out in tests, which exercise
    * the API without needing a front end to have been built.
@@ -20,7 +29,7 @@ export interface AppOptions {
   databaseMs?: number;
 }
 
-export function createApp(options: AppOptions = {}): Express {
+export function createApp(options: AppOptions): Express {
   const app = express();
 
   app.use(express.json());
@@ -31,6 +40,8 @@ export function createApp(options: AppOptions = {}): Express {
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', commit, ...(databaseMs === undefined ? {} : { databaseMs }) });
   });
+
+  app.use('/api', createApiRouter(options.db));
 
   const { staticDir } = options;
   if (staticDir !== undefined) {

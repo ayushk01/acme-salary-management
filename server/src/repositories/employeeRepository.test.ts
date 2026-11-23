@@ -91,11 +91,7 @@ describe('findEmployees', () => {
   });
 
   it('sorts by salary, highest first, when asked', () => {
-    expect(codes({ sort: 'salary', dir: 'desc' })).toEqual([
-      'EMP00002',
-      'EMP00003',
-      'EMP00001',
-    ]);
+    expect(codes({ sort: 'salary', dir: 'desc' })).toEqual(['EMP00002', 'EMP00003', 'EMP00001']);
   });
 
   it('counts every match, not just the page returned', () => {
@@ -106,7 +102,9 @@ describe('findEmployees', () => {
   });
 
   it('returns the page that was asked for', () => {
-    expect(codes({ pageSize: 1, page: 2 })).toEqual(['EMP00002']);
+    // Default order is by name: Asha Rao, Emma Smith, Ravi Menon. So the
+    // second page of one is Emma Smith, not the second row inserted.
+    expect(codes({ pageSize: 1, page: 2 })).toEqual(['EMP00003']);
   });
 
   it('carries the currency of the employee country, not a default', () => {
