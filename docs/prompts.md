@@ -184,3 +184,19 @@ Then start slice 0 and stop for my review before the Dockerfile.
 ```text
 Go. Keep my commit order; the one-commit dangling link is fine.
 ```
+
+### Follow-up
+
+```text
+Yes, create and push
+```
+
+---
+
+## Slice 1 — deploy a hello-world (2026-11-23)
+
+### Main prompt
+
+```text
+Yes, Render
+```

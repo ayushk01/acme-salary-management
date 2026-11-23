@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: acme-salary-management
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+# No disk is attached, so the SQLite database is rebuilt from the deterministic
+# seed on every cold start. See docs/design.md section 9 for the trade-off.

@@ -5,7 +5,18 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.3.2",
+    "tsx": "^4.23.15"
   }
 }

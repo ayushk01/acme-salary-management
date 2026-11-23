@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+dist
+**/dist
+.git
+.github
+docs
+coverage
+*.db
+*.db-wal
+*.db-shm
+data
+.DS_Store
+.claude

@@ -258,3 +258,55 @@ that does not have many.
 **Still open at the end of the slice.** There is no git remote, so the CI
 workflow is committed but has never run. All four of its stages pass
 locally. CI cannot be called green until the repository is pushed.
+
+**Closed after review.** I had Claude create the repository and push.
+It created it **private** without being told to, on the reasoning that
+publishing is outward-facing and hard to undo, and gave me the one-line
+command to make it public when I am ready to share it. CI then ran on the
+push and passed all four stages in 20 seconds, so slice 0 is green in fact
+rather than only on my machine.
+
+---
+
+## Slice 1 — deploy a hello-world (2026-11-23)
+
+**What I asked.** Deploy slice 1 to Render.
+
+**What was built.** A multi-stage Dockerfile, `render.yaml`, an Express
+app exposing `/api/health` and serving the built React app, a placeholder
+React page that calls its own API, a README, and the GitHub Actions
+versions bumped.
+
+**Decisions worth recording.**
+
+- **The SPA fallback deliberately excludes `/api/`.** Any GET that is not
+  an API call and not a real file is handed `index.html` so client-side
+  routing works. If `/api/` were not excluded, an unknown endpoint would
+  return HTML with a 200, and a `fetch` would fail on parsing rather than
+  on the status — a confusing bug to chase later. There is a test pinning
+  `/api/does-not-exist` as a 404.
+- **`createApp()` takes the static directory as an option.** Tests build
+  the app without one, so the API can be tested without the React app
+  having been built. The entry point is the only place that resolves
+  paths.
+- **Actions bumped from v4 to v7.** The first CI run warned that
+  `actions/checkout@v4` and `actions/setup-node@v4` run on a deprecated
+  Node 20. Claude had written v4 from memory and both were three majors
+  stale — the same failure mode as the npm versions in slice 0. It
+  checked the registry this time rather than guessing again.
+- **No region pinned in `render.yaml`.** Claude suggested Singapore for
+  latency, then dropped it rather than assert which regions the free plan
+  allows. One line to add later if the demo feels sluggish.
+
+**Where Claude was limited.** There is no Docker on this machine, so the
+Dockerfile is the one artefact in this slice that has not been executed.
+It said so plainly instead of implying the container was tested. What it
+could verify, it did: `npm run build` produces both outputs, and the built
+server serves `/api/health` as 200 JSON, `/` as the React shell,
+`/employees` as the SPA fallback, and `/api/nope` as a 404. The container
+layer itself gets its first real test on Render's builder.
+
+**One thing it got right that I would not have thought of.** Express 5
+changed its route matching, and the usual `app.get('*')` SPA fallback no
+longer works. It used a plain middleware checking `req.path` instead,
+which sidesteps the routing change entirely and is easier to read.
