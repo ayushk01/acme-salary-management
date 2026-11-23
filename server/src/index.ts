@@ -42,7 +42,7 @@ console.log(
 // a 200 came from the build we just pushed.
 const commit = process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? 'local';
 
-const app = createApp({ staticDir, commit });
+const app = createApp({ staticDir, commit, databaseMs });
 
 app.listen(port, () => {
   console.log(`ACME salary management listening on port ${port}`);

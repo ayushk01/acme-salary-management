@@ -13,6 +13,11 @@ export interface AppOptions {
    * endpoint so a deploy can be verified from outside.
    */
   commit?: string;
+  /**
+   * Milliseconds spent on migrations, reference data and the seed at boot.
+   * Reported so the cold-start budget can be checked on the deployed URL.
+   */
+  databaseMs?: number;
 }
 
 export function createApp(options: AppOptions = {}): Express {
@@ -21,9 +26,10 @@ export function createApp(options: AppOptions = {}): Express {
   app.use(express.json());
 
   const commit = options.commit ?? 'local';
+  const { databaseMs } = options;
 
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', commit });
+    res.json({ status: 'ok', commit, ...(databaseMs === undefined ? {} : { databaseMs }) });
   });
 
   const { staticDir } = options;
