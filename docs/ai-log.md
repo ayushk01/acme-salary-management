@@ -477,3 +477,22 @@ table, the eight countries load, and the API and React build are both
 served. Migrations and reference data take **24 ms**, against the 2 second
 boot budget the design sets for a cold start — comfortable, and a measured
 number rather than an estimate.
+
+Everything above was verified on arm64, while Render runs x64, so the
+`--ignore-scripts` fix rested on `better-sqlite3` shipping a `linux-x64`
+prebuild too. Claude could not confirm the deploy from outside — a failed
+deploy leaves the previous container serving, and slice 3 changed nothing
+observable through the API — so it said so instead of reading a 200 as
+proof, and I confirmed it green in the Render dashboard myself.
+
+---
+
+## CLAUDE.md — late (2026-11-24)
+
+`CLAUDE.md` was step D of my own order of work and should have been
+written before any code. It was not: we went A, B, C and then straight to
+repo setup and slices, and neither of us noticed for four slices. The
+rules held anyway because they were restated in this conversation, which
+is exactly the fragility step D existed to remove — a new session would
+have had none of them. Claude flagged the omission at the end of slice 3;
+I would rather it had been caught when we skipped it.
