@@ -9,9 +9,7 @@ import {
   searchFromFilters,
   withChange,
 } from '../employees/filters.js';
-import { formatMoney } from '../money.js';
-
-const LOCALE = 'en-IN';
+import { formatMoney, localeForCountry } from '../money.js';
 
 export function EmployeesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -192,7 +190,9 @@ export function EmployeesPage() {
               <td>{employee.jobTitle}</td>
               <td>{employee.department}</td>
               <td>{employee.country.name}</td>
-              <td className="right">{formatMoney(employee.salary, LOCALE)}</td>
+              <td className="right">
+                {formatMoney(employee.salary, localeForCountry(employee.country.code))}
+              </td>
               <td>{employee.status === 'left' ? 'Left' : 'Active'}</td>
             </tr>
           ))}

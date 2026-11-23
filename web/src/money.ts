@@ -1,3 +1,16 @@
+/**
+ * Which locale to format a country's salaries in.
+ *
+ * India keeps its own, because lakh grouping (18,00,000) is what the HR
+ * manager reads every day and Western grouping would look wrong. Everywhere
+ * else uses en-US, which also keeps the three dollar currencies apart:
+ * formatted in their own locales, Singapore and Australia each render a bare
+ * "$" that is indistinguishable from US dollars in a list comparing them.
+ */
+export function localeForCountry(countryCode: string): string {
+  return countryCode === 'IN' ? 'en-IN' : 'en-US';
+}
+
 export interface Money {
   /** Whole number of minor units, e.g. paise for INR, yen for JPY. */
   amountMinor: number;
