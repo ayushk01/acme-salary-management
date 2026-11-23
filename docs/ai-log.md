@@ -205,3 +205,56 @@ only one where I had asked to see the result first. It also flagged that
 my commit order leaves a link from `requirements.md` to `design.md`
 dangling for exactly one commit. I judged that not worth reordering for,
 but I would rather be told.
+
+---
+
+## Slice 0 — repo setup (2026-11-23)
+
+**What I asked.** Start slice 0 and stop before the Dockerfile.
+
+**What was built.** npm workspaces (`server`, `web`), TypeScript strict
+with `noUncheckedIndexedAccess`, eslint flat config, Prettier, Vitest, and
+a GitHub Actions workflow running lint, format, typecheck and test.
+
+**Decisions worth recording.**
+
+- **TypeScript pinned to 5.9.3, not the current 7.0.2.** Claude checked
+  the registry before installing and found that `typescript-eslint`'s
+  latest release (8.73.0) declares `typescript: ">=4.8.4 <6.1.0"`, with no
+  v9 published. Taking TypeScript 7 would have meant no type-aware
+  linting. Pinned with `~` so patches still arrive. Worth revisiting after
+  the assessment.
+- **CI runs Node 26, matching the development machine**, rather than the
+  22 first written. CI that does not mirror the machine the code was
+  written on is a trap, and `@types/node` had resolved to 26.
+- **Prettier ignores `docs/`.** The prose there is hand-wrapped for
+  reading; letting Prettier reflow it would churn every documentation
+  commit for no benefit. Prettier governs code, not writing.
+- **The "trivial test to prove the wiring" became a real one.** Rather
+  than an `expect(true).toBe(true)`, the first test drives
+  `formatEmployeeCode`, which the seed and the add-employee form both need
+  later. Written test-first: the failing run was module-not-found, then
+  the minimum implementation, then green. Four tests, 169 ms.
+- **`.DS_Store` untracked** and added to `.gitignore`, along with
+  `.claude/settings.local.json`.
+
+**Where Claude was wrong.** Every dependency version it wrote into the
+first `package.json` was stale — Vitest `^2` against a current `5.1.1`,
+eslint `^9` against `10.15.0`, `@types/node` `^22` against `26.6.6`. The
+resulting install reported six vulnerabilities, two of them critical, and
+two packages with unapproved install scripts. It had guessed from memory
+instead of asking the registry. It did check before the second attempt,
+and a clean reinstall at current versions reports zero vulnerabilities and
+no install-script warnings — but the right order was registry first,
+`package.json` second, and I would not have caught the stale pins myself.
+
+Two further npm stumbles on the way: `npm install -D <pkg>` honoured the
+existing caret ranges instead of fetching latest, and then a leftover
+`node_modules` tree produced a peer-dependency conflict on `vite`. Both
+were resolved by deleting `node_modules` and `package-lock.json` and
+installing fresh. Cheap to fix, but it cost a few minutes of an evening
+that does not have many.
+
+**Still open at the end of the slice.** There is no git remote, so the CI
+workflow is committed but has never run. All four of its stages pass
+locally. CI cannot be called green until the repository is pushed.

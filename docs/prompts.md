@@ -174,3 +174,13 @@ Commits, in this order:
 
 Then start slice 0 and stop for my review before the Dockerfile.
 ```
+
+---
+
+## Slice 0 — repo setup (2026-11-23)
+
+### Main prompt
+
+```text
+Go. Keep my commit order; the one-commit dangling link is fine.
+```
