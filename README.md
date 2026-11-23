@@ -36,7 +36,7 @@ That serves the API and the UI together on http://localhost:3000, seeding
 in two terminals instead.
 
 ```bash
-npm test          # 123 tests, under a second
+npm test          # 130 tests, under a second
 npm run lint
 npm run typecheck
 ```
@@ -52,7 +52,7 @@ All of these run in CI on every push.
 | What does someone earn, and how has their pay changed? | **Employees** → click an employee code |
 | How many people are in a country, and what do they earn? | **Pay by country** |
 | What does a job title pay here and elsewhere? | **Pay by job title** |
-| Who is paid outside their range? | Not in v1 — see *What I cut* |
+| Who is paid outside their range? | **Outside range** |
 | Who last changed a record, and when? | **Employees** → click a code → above the salary history |
 | Find, add, edit, or mark someone as left | **Employees** |
 | Get it into Excel | **Employees** → *Export CSV* |
@@ -64,7 +64,9 @@ looking at.
 
 ## Decisions
 
-Reasoning for all of these is in [docs/design.md](docs/design.md).
+Reasoning for all of these is in [docs/design.md](docs/design.md). The build
+order is in [docs/plan.md](docs/plan.md), and the testable conditions behind
+each feature in [docs/acceptance-criteria.md](docs/acceptance-criteria.md).
 
 - **Money is integer minor units with an ISO currency code.** Never a float.
   `amount / 100` is the bug this rule exists to prevent.
@@ -83,9 +85,6 @@ Reasoning for all of these is in [docs/design.md](docs/design.md).
 
 ## What I cut
 
-- **Who is paid outside their range.** The rule and its tests are written
-  (`server/src/domain/payRules.ts`), but the query and screen are not. It was
-  the lowest-value item against a deadline.
 - **A full audit view** of every field change. The requirements promise who
   last changed a record and when, which is built; a per-field change log was
   always a *could*.
@@ -131,6 +130,7 @@ Measured against the seeded 10,000 employees, median of three warm requests.
 | Employee list, page 400 | 11 ms |
 | Country overview | 3 ms |
 | Job overview, 8 countries | 2 ms |
+| Outside-range check, a whole country | 3 ms |
 | CSV export, all 10,000 rows (1.19 MB) | 30 ms |
 | Boot: migrations + seeding 10,000 | **313 ms** locally, **7.6–9.3 s** on the free tier |
 

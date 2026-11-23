@@ -39,12 +39,12 @@ and getting data out into Excel.
 - Job pay overview: the same figures per country for one job title.
 - Export the current filtered list as CSV that opens in Excel.
 
-**Should**
+**Should** — built
 
 - Discrepancies: who is paid outside the range for their job in their
   country.
 
-**Could**
+**Could** — not built
 
 - Full audit view: every edit with the individual fields that changed.
 
