@@ -487,56 +487,15 @@ proof, and I confirmed it green in the Render dashboard myself.
 
 ---
 
-## Slice 5 — the list API (2026-11-24)
+## CLAUDE.md — late (2026-11-24)
 
-**What I asked.** Apply the boot-time wording, note the sleep warning on
-the README slice, commit the docs, then start slice 5.
-
-**What was built.** `GET /api/employees` and `GET /api/reference` through
-routes → services → repositories, with a pure paging module. Twenty-two
-new tests, sixty-three in all, still under a second.
-
-**Decisions worth recording.**
-
-- **The total is its own count query**, not a `COUNT(*) OVER ()` window
-  column. Against a synchronous in-process database the second query is
-  almost free, and repeating the total on every row to save it reads
-  worse. I let Claude make this call rather than stopping for it.
-- **Ordering breaks ties on employee code.** Sorting by name alone is not
-  a total order at 10,000 people, so two employees sharing a name could
-  appear on two pages or on none. This is the kind of bug that shows up
-  as "the list sometimes skips someone" weeks later.
-- **LIKE wildcards in the search term are escaped** with an explicit
-  ESCAPE clause. Without it, searching for "50%" matches everyone.
-  Claude raised this unprompted; I would not have thought of it.
-- **`createApp` now requires the database.** Making it optional would let
-  a wiring mistake surface as silently missing routes instead of a type
-  error. It cost a small edit to the existing health tests, which is the
-  right trade.
-
-**Measured, not assumed.** Against the seeded 10,000 employees the list
-endpoint answers in 1.4 ms to 17 ms, against the 500 ms budget in
-design.md. The slowest case is an unfiltered first page; the `LIKE`
-search that no index can serve came in at 17 ms, so the FTS5 fallback the
-design mentions stays unnecessary.
-
-**Where Claude was wrong.** Two of its own test expectations were wrong
-again, and in the same way as the rupee mistake in slice 2: asserting
-what it assumed rather than what the code would do. It expected page two
-of one to be the second employee *inserted*, when the default order is by
-name — "Asha Rao, Emma Smith, Ravi Menon" puts the third insert second.
-The implementation was right both times.
-
-It also wrote a nonsense `afterEach` shim at the bottom of a test file,
-reaching for a global instead of importing `afterEach` from vitest, and
-caught it on re-reading before running anything. Worth noting because
-nothing in the harness would have caught it as a *design* problem — it
-would simply have failed, confusingly.
-
-A pattern is forming: Claude's production code has been right nearly
-every time, and its test expectations wrong three times out of three
-slices. The tests still did their job, but it is the opposite of where I
-would have expected the errors.
+`CLAUDE.md` was step D of my own order of work and should have been
+written before any code. It was not: we went A, B, C and then straight to
+repo setup and slices, and neither of us noticed for four slices. The
+rules held anyway because they were restated in this conversation, which
+is exactly the fragility step D existed to remove — a new session would
+have had none of them. Claude flagged the omission at the end of slice 3;
+I would rather it had been caught when we skipped it.
 
 ---
 
@@ -590,12 +549,253 @@ written into CLAUDE.md.
 
 ---
 
-## CLAUDE.md — late (2026-11-24)
+## Slice 5 — the list API (2026-11-24)
 
-`CLAUDE.md` was step D of my own order of work and should have been
-written before any code. It was not: we went A, B, C and then straight to
-repo setup and slices, and neither of us noticed for four slices. The
-rules held anyway because they were restated in this conversation, which
-is exactly the fragility step D existed to remove — a new session would
-have had none of them. Claude flagged the omission at the end of slice 3;
-I would rather it had been caught when we skipped it.
+**What I asked.** Apply the boot-time wording, note the sleep warning on
+the README slice, commit the docs, then start slice 5.
+
+**What was built.** `GET /api/employees` and `GET /api/reference` through
+routes → services → repositories, with a pure paging module. Twenty-two
+new tests, sixty-three in all, still under a second.
+
+**Decisions worth recording.**
+
+- **The total is its own count query**, not a `COUNT(*) OVER ()` window
+  column. Against a synchronous in-process database the second query is
+  almost free, and repeating the total on every row to save it reads
+  worse. I let Claude make this call rather than stopping for it.
+- **Ordering breaks ties on employee code.** Sorting by name alone is not
+  a total order at 10,000 people, so two employees sharing a name could
+  appear on two pages or on none. This is the kind of bug that shows up
+  as "the list sometimes skips someone" weeks later.
+- **LIKE wildcards in the search term are escaped** with an explicit
+  ESCAPE clause. Without it, searching for "50%" matches everyone.
+  Claude raised this unprompted; I would not have thought of it.
+- **`createApp` now requires the database.** Making it optional would let
+  a wiring mistake surface as silently missing routes instead of a type
+  error. It cost a small edit to the existing health tests, which is the
+  right trade.
+
+**Measured, not assumed.** Against the seeded 10,000 employees the list
+endpoint answers in 1.4 ms to 17 ms, against the 500 ms budget in
+design.md. The slowest case is an unfiltered first page; the `LIKE`
+search that no index can serve came in at 17 ms, so the FTS5 fallback the
+design mentions stays unnecessary.
+
+**Where Claude was wrong.** Two of its own test expectations were wrong
+again, and in the same way as the rupee mistake in slice 2: asserting
+what it assumed rather than what the code would do. It expected page two
+of one to be the second employee *inserted*, when the default order is by
+name — "Asha Rao, Emma Smith, Ravi Menon" puts the third insert second.
+The implementation was right both times.
+
+It also wrote a nonsense `afterEach` shim at the bottom of a test file,
+reaching for a global instead of importing `afterEach` from vitest, and
+caught it on re-reading before running anything. Worth noting because
+nothing in the harness would have caught it as a *design* problem — it
+would simply have failed, confusingly.
+
+A pattern is forming: Claude's production code has been right nearly
+every time, and its test expectations wrong three times out of three
+slices. The tests still did their job, but it is the opposite of where I
+would have expected the errors.
+
+---
+
+## Slice 6 — the list UI (2026-11-24)
+
+**What was built.** react-router with every filter in the query string, a
+pure filters module, the table, pager, sortable columns and the session
+name prompt. Option A on testing: no component-test dependencies, with the
+URL mapping tested hard instead.
+
+**The rule that came out of this slice.** Claude's own test expectations
+had been wrong in three slices running while its production code was
+right, so from here I review the test table — names and expected values —
+*before* the code exists. It worked immediately: the filters module went
+red then green first time, with no argument about whether the test or the
+code was at fault.
+
+I also added a row it had missed entirely: changing a filter has to return
+to page one. Filtering while on page 25 would otherwise land on a page
+that no longer exists, and the HR manager sees an empty table.
+
+**Two bugs no test caught.** I had Claude open the page in a browser, and
+both were visible in seconds:
+
+- Every salary was formatted `en-IN`, so US pay read `$1,29,196.00` and yen
+  read `JP¥1,18,36,161`. Fixed by choosing the locale per country, which
+  also keeps Singapore and Australian dollars distinct from US ones — in
+  their own locales all three render a bare `$`.
+- The default first page was twenty people all called "Arjun Chen". Not a
+  logic error: 24 × 22 names across 10,000 people means about nineteen
+  share each combination, and sorting by name clusters them. Honest, but it
+  reads as a bug. Widened to 60 × 60.
+
+Neither would have been caught by component tests either. They are
+appearance, not behaviour. Looking at the thing is its own step.
+
+---
+
+## Slice 7 — add, edit and mark as left (2026-11-24)
+
+**What was built.** The three write endpoints and their forms. A salary
+edit updates the employee and writes `salary_changes` in one transaction;
+editing anything else writes no salary change; someone who has left is
+read-only; and every write must carry `X-Changed-By`, because with no login
+attribution is the only audit there is.
+
+Two component tests, as agreed — a server field error rendering beside its
+field, and the salary field converting rupees to paise. The second is the
+factor-of-a-hundred mistake integer minor units exist to prevent, and it
+lives in the UI where no server test would see it.
+
+**Found by looking at the database, not by a test.** After saving a change
+through the UI I had Claude read the row back. The effective date was
+2026-11-23 when my local date was the 24th: `toISOString()` is UTC, and
+between midnight and 05:30 in India the two differ by a day. The browser
+now sends its own calendar date. The server already honoured a date it was
+sent — it had simply never been sent one — so the fix was entirely on the
+client and the new test pins a contract rather than a bug. Claude said so
+rather than presenting it as a red-green cycle.
+
+---
+
+## Slice 8 — salary history (2026-11-24)
+
+**What I caught in the table review.** Two salary changes can share an
+effective date. The ordering has to break that tie the same way every
+time, or the list reorders itself between page loads for no visible
+reason. It now orders by effective date, then by which was recorded last.
+
+**What was built.** The history endpoint and a table on the employee page,
+plus `updatedAt`/`updatedBy` on the employee summary — which is what
+answers "who last touched this record" for the great majority of the ten
+thousand who have never had a raise.
+
+---
+
+## Slice 9 — pay by country (2026-11-24)
+
+**What was built.** Every figure — headcount, lowest, highest, average and
+median — in one SQL query. SQLite has no `median()`, so it comes from a
+window function taking rows `(n+1)/2` and `(n+2)/2`, which integer division
+collapses to one row when the count is odd and straddles the middle when it
+is even.
+
+**Expected values derived, not guessed.** Before writing the test table
+Claude ran the median query against a real SQLite with six different inputs
+and reported what came back: `ROUND` goes half away from zero, and an empty
+group returns `null` rather than erroring. That second fact decided a test —
+an empty country answers with a headcount of zero and nulls, because a
+reviewer will click every country in the dropdown and a null reaching the
+formatter is a blank screen.
+
+I added one rule to the table: the average rounds the same way as the
+median. That turned out to make a single test cover both roundings, since
+this group's median rounds up while its average rounds down.
+
+---
+
+## Slice 10 — pay by job title (2026-11-24)
+
+The same median window with `PARTITION BY country_code`. One row per
+country, never combined: salaries in different currencies have no
+meaningful sum.
+
+The test that earns its place uses three countries on different salaries.
+Without the partition every row would report the global maximum, and a test
+with one country in it would pass anyway.
+
+This is where the currency work becomes visible rather than asserted —
+eight countries in one table, with lakh grouping for India, no decimals for
+yen, and three dollar currencies all distinguishable.
+
+---
+
+## Slice 11 — CSV export (2026-11-24)
+
+**What was built.** `GET /api/employees.csv`, same filters as the list,
+reusing the same filter code and column list so the two cannot drift. Every
+matching row, not one page. Written in chunks so a ten-thousand-row export
+never holds the whole file in memory.
+
+**Written for Excel, not merely valid.** A UTF-8 byte order mark, CRLF line
+endings, fields quoted when they contain a comma, a quote or a newline, and
+the salary as a plain number with the currency in its own column so Excel
+can total and sort it.
+
+Two of the seven tests are the ones that matter. The seeded names are
+clean, so a naive `fields.join(',')` passes everything else and silently
+corrupts the one row with a comma in it. And without the byte order mark
+Excel reads UTF-8 as the local codepage and mangles every non-ASCII name,
+of which the seed has many.
+
+**The duplication decision, revisited as promised.** `minorUnitsToDecimalString`
+now has a second caller on the server. I kept the duplicate rather than
+adding a shared workspace: another package, another tsconfig and two module
+resolutions to reconcile, for fifteen lines. The honest cost is that the
+two could drift without a test noticing, so each copy has tests and each
+comments the other.
+
+**Where Claude was wrong.** It wrote a literal byte order mark into the
+test source instead of the escape sequence, which ESLint caught as
+irregular whitespace. That is the second time — it did the same with a
+non-breaking space in slice 2. Both were caught by the harness, but it is a
+blind spot worth knowing about.
+
+---
+
+## Slice 12 — paid outside their range (2026-11-24)
+
+**What I added to the table.** A row for the lower branch. The rule has two
+halves and the table only tested the upper one; an upper-only
+implementation would have passed six of seven tests and quietly never
+flagged anyone underpaid, which is the half HR most needs.
+
+**What was built.** The outlier query from the design doc, with the median
+window partitioned by job title. The comparison multiplies rather than
+divides so it stays in integers, and strict `>` and `<` put a salary
+exactly at the threshold inside the range. The threshold and minimum group
+size are handed to the SQL as bound parameters from `payRules.ts`, which is
+what stops the query and the pure function disagreeing — that rule had
+tests since slice 2 and nothing used it until now.
+
+Against the seeded data this finds the group the seed plants on purpose:
+one SDE2 in India at +71.1% and one at −44.6%. Both branches visible in the
+product, not only in tests.
+
+---
+
+## Wrap-up (2026-11-24)
+
+**Said first, because the history shows it anyway.** The entries for slices 6
+to 12 were written at the end, not after each slice, which is not what
+CLAUDE.md says to do. The prompts were captured as we went and the facts are
+checkable against the commits, the test output and the screenshots — but the
+reflections were reconstructed rather than written in the moment, and a log
+that let you assume otherwise would be the wrong kind of document.
+
+**The README's own instructions were wrong.** I asked Claude to prove them
+rather than assert them: a clean checkout, in the same slim image this
+deploys to, running the exact commands. `npm install` failed on `node-gyp`
+looking for Python, exactly as our earlier three-row experiment predicted —
+any install resolved from the lockfile runs it. Changed to
+`npm ci --ignore-scripts` with a line saying why, and proved again: install,
+build, boot, seed, health, list and UI page all good.
+
+This is the same mistake as slice 3, where a pre-check ran a different
+command from the real one. The difference is that this time it was checked
+before anyone else hit it.
+
+**On the AI's claim about itself.** The README first said "I made every
+decision". The log shows that is not quite true — Claude made small
+implementation calls as it went which I approved or reversed afterwards, so
+it now says the product and design decisions are mine, and points here.
+
+**What the whole run looks like.** Claude's production code was wrong
+rarely; its own test expectations were wrong three slices running, and its
+verifications twice checked something adjacent to the real thing rather
+than the real thing. Reviewing test tables before the code existed stopped
+the first. Making it run the actual command stopped the second. Both were
+process changes, not smarter prompting.

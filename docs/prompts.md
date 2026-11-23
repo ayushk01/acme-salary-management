@@ -270,3 +270,189 @@ Add a note to the plan's README slice: the README must say the first load after 
 
 Commit the docs, then start slice 5.
 ```
+
+---
+
+## Slice 6 — the list UI (2026-11-24)
+
+### Main prompt
+
+```text
+Push slice 5 and confirm the commit on /api/health. Apply the jobTitleId / departmentId fix to design.md.
+
+One process change before slice 6: before each red commit, show me the test names with their expected values in a short table and wait for my OK. Your expectations have been wrong three slices in a row, so I review those before the code exists. When a test fails after implementation, tell me whether the test or the code was wrong, and why the requirement says so.
+
+Slice 6: keep the UI plain. No new UI library unless you ask first. Give me the plan and the test table, then wait.
+```
+
+### Follow-up
+
+```text
+Table approved, option A for this slice. Add these rows before the red commit:
+
+13. '?jobTitleId=abc' → jobTitleId: null (same for departmentId)
+14. '?dir=sideways' → dir: 'asc'
+15. '?page=2.5' → page: 1 (row 5 says whole number; Number('2.5') passes a naive check)
+16. reads departmentId out of the URL (row 2 skips it)
+17. changing any filter, the search or the sort resets page to 1; changing only the page keeps the filters. Otherwise filtering from page 25 lands on an empty page.
+
+Row 17 needs a small pure function for "apply a change to the filters". Put it in filters.ts.
+
+On B: not now. Plan it for slice 7, the edit form, with two or three component tests only (validation message shows, save sends the right body). Ask me again then. Record the A-now, B-later decision in the ai-log.
+
+Go.
+```
+
+---
+
+## Slice 7 — add, edit and mark as left (2026-11-24)
+
+### Main prompt
+
+```text
+Both approved: the locale fix and the wider name pools (about 60 × 60). Show me the Intl output for all eight countries in one table, then commit and push both with messages for my OK. If any format looks wrong, fall back to en-US grouping for every country except India.
+
+Note on the export slice in plan.md: CSV writes plain numbers, not formatted money.
+
+From here we ship fast. The brief says they don't want a complex system.
+- Build only the Must list: edit form, salary history, country and job overviews, CSV export. Then README and video.
+- Discrepancies only if time is left. The full audit view is cut.
+- Component tests: two on the edit form, no more.
+- Keep test tables short, and don't propose refinements unless something is broken.
+
+Next: slice 7 plan and test table.
+```
+
+### Follow-up
+
+```text
+Messages approved, but commit in this order: 2 (list UI), then 1 (money fix), 3, 4. The money fix describes a list that commit 2 introduces, so the history reads wrong otherwise.
+
+Slice 7: plan and table approved, and yes to @testing-library/react and jsdom as dev dependencies. Add one row: creating an employee returns 201 and the person appears in the list. The table has no happy path for add.
+
+Go.
+```
+
+---
+
+## Slice 8 — salary history (2026-11-24)
+
+### Main prompt
+
+```text
+Push slice 7 and confirm the commit on /api/health.
+
+Effective date: the browser sends its local date with the save; the server keeps UTC today only as a fallback when none is sent. One test, one small fix commit, and a line in design.md saying an effective date is a calendar date chosen by the user, not a timestamp. Don't add a date picker.
+
+Both things you did without asking are fine.
+
+Then slice 8: plan and test table, kept short.
+```
+
+### Follow-up
+
+```text
+Slice 8 table approved. No separate test for localDateIso(). Push the date fix with slice 8.
+
+One detail on row 1: two changes can share an effective date, so break ties the same way every time (newest recorded first). Go.
+```
+
+---
+
+## Slice 9 — pay by country (2026-11-24)
+
+### Main prompt
+
+```text
+Yes, plan and table
+```
+
+### Follow-up
+
+```text
+Slice 9 plan and table approved. Average rounds the same way as the median (nearest minor unit). Go.
+```
+
+---
+
+## Slice 10 — pay by job title (2026-11-24)
+
+### Main prompt
+
+```text
+Yes, plan and table
+```
+
+### Follow-up
+
+```text
+Slice 10 table approved. Go.
+
+When it's pushed, give me the slice 11 (CSV export) plan and table in the same message. Keep it small: the current filtered list, plain numbers, currency in its own column, and it opens cleanly in Excel.
+```
+
+---
+
+## Slice 11 — CSV export (2026-11-24)
+
+### Main prompt
+
+```text
+Approved, go
+```
+
+---
+
+## Wrap-up and slice 12 (2026-11-24)
+
+### Main prompt
+
+```text
+Yes, start the wrap-up. Leave the money function duplicated; no shared workspace.
+
+README, in my voice, first person, plain, about one page:
+- live URL, with the warning that the first load after sleep can take up to a minute
+- run it locally in three commands, and how to run the tests
+- the seven questions it answers and where to click for each
+- key decisions in one line each, linking to design.md
+- what was cut and why
+- how I used AI: link CLAUDE.md, ai-log.md and prompts.md, and name two places the AI was wrong
+- measured performance numbers, including the 8 second boot on the free tier
+- known limits: data resets on redeploy, no login, and a CSV cell that starts with = is not neutralised
+
+Show me the README draft before committing. Then the video outline, 3 to 5 minutes.
+
+After the README draft: discrepancies as one short slice. Requirements question 4 promises it and payRules.ts is unused without it. One endpoint, one page, the SQL from design.md section 4. Give me the plan and a short test table. If it isn't done in about an hour, we stop and I change the requirements page to say question 4 is not in v1.
+```
+
+### Follow-up
+
+```text
+README approved with three changes:
+
+1. The run instructions can fail on a machine with no build toolchain: our own three-row test showed any install from the lockfile runs node-gyp rebuild. Prove the README's exact commands in a clean clone inside node:26-slim, which has no Python. If they fail, change the README to the install command that works (npm ci --ignore-scripts, as in the Dockerfile) with one line saying why, and re-run the proof. Tell me what you ran and what happened.
+
+2. Change "I made every decision" to "The product and design decisions are mine". The ai-log shows you made small calls that I approved afterwards, so the absolute version is not accurate.
+
+3. Add a "Demo video" line under the live URL, left as a placeholder until I record it.
+
+Don't commit the README yet. The question 4 row and the "What I cut" entry change if discrepancies lands.
+
+Discrepancies: plan and table approved, with one more row. Someone more than 25% below the median is listed, with a negative percentage. The rule has two branches and the table only tests the upper one. Go.
+```
+
+### Final pass
+
+```text
+Yes. Update the README for discrepancies: the question 4 row, the cut list, the test count (130) and a discrepancies line in the performance table. Move discrepancies out of anything that still calls it unbuilt in requirements.md and plan.md.
+
+Check one thing in the browser: pick a country with no one outside range and confirm the page shows a clear "nobody is outside range" message, not an empty table.
+
+Then a final pass:
+- ai-log.md and prompts.md complete through this slice
+- CLAUDE.md has no stale "(from slice N)" markers
+- every doc link in the README opens
+- CI green, and the live /api/health shows the final commit
+
+Show me the commit messages, then push. After that the code is frozen: only the video link goes into the README.
+```

@@ -1,9 +1,9 @@
 # CLAUDE.md
 
 How we work on this repo. These are rules we actually follow, not
-aspirations. A rule marked *(from slice N)* is agreed but does not bind
-until that slice reaches it — the plan is in `docs/plan.md`. If a rule
-here stops being true, change it or delete it.
+aspirations. Every rule below binds today; if one stops being true,
+change it or delete it. (While building, a rule agreed but not yet
+reached was marked *(from slice N)* — none remain.)
 
 ## Working agreement
 
@@ -20,8 +20,7 @@ here stops being true, change it or delete it.
 - **When a test fails after the code is written**, say plainly whether the
   test or the code was wrong, and which requirement decides it. Do not
   just change the expectation until it passes.
-- **Commit the failing test and the passing code separately** *(from
-  slice 4)*. Two commits: `test:` with the red test, then `feat:`/`fix:`
+- **Commit the failing test and the passing code separately.** Two commits: `test:` with the red test, then `feat:`/`fix:`
   with the code that turns it green. Push them together, so CI judges the
   green tip rather than the red commit.
 - **Never commit unasked.** Propose the message, wait for my OK or my
@@ -51,10 +50,10 @@ here stops being true, change it or delete it.
 - **Pay rules live in one place** (`server/src/domain/payRules.ts`). They
   are passed to SQL as bound parameters, so the query
   and the pure function cannot disagree about the rule.
-- **Server-side pagination, search and filters** *(from slice 5)*. The
+- **Server-side pagination, search and filters.** The
   browser never receives more than a page; 20 rows per page. Only the CSV
   export returns everything.
-- **No hard deletes** *(from slice 7)*. Employees are marked as left;
+- **No hard deletes.** Employees are marked as left;
   their record, salary history and audit trail stay.
 - **Aggregates are computed in SQL, not JavaScript.**
   Count, min, max, average and median are the database's job, including
