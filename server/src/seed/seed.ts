@@ -50,56 +50,33 @@ const TITLE_MULTIPLIER: Record<string, number> = {
   'Finance Analyst': 0.95,
 };
 
+// 60 x 60 gives 3,600 combinations across 10,000 people, so no one name
+// fills a page. At 24 x 22 the default name-sorted first page was twenty
+// people all called the same thing, which reads as a bug rather than as the
+// duplicate names a real 10,000-person company genuinely has.
+// prettier-ignore
 const FIRST_NAMES = [
-  'Asha',
-  'Ravi',
-  'Meera',
-  'Arjun',
-  'Priya',
-  'Vikram',
-  'Neha',
-  'Rahul',
-  'Emma',
-  'Liam',
-  'Olivia',
-  'Noah',
-  'Sofia',
-  'Lucas',
-  'Hannah',
-  'Felix',
-  'Yuki',
-  'Haruto',
-  'Mei',
-  'Kenji',
-  'Chloe',
-  'Ethan',
-  'Isabel',
-  'Mateo',
+  'Asha', 'Ravi', 'Meera', 'Arjun', 'Priya', 'Vikram', 'Neha', 'Rahul',
+  'Ananya', 'Karthik', 'Divya', 'Siddharth', 'Emma', 'Liam', 'Olivia',
+  'Noah', 'Sofia', 'Lucas', 'Hannah', 'Felix', 'Clara', 'Jonas', 'Lena',
+  'Max', 'Yuki', 'Haruto', 'Mei', 'Kenji', 'Sakura', 'Ren', 'Aoi',
+  'Daichi', 'Chloe', 'Ethan', 'Isabel', 'Mateo', 'Camila', 'Diego',
+  'Lucia', 'Tomas', 'Grace', 'Oliver', 'Amara', 'Kwame', 'Zara', 'Omar',
+  'Layla', 'Yusuf', 'Wei', 'Jing', 'Hao', 'Lin', 'Nadia', 'Ivan', 'Petra',
+  'Marek', 'Sven', 'Astrid', 'Elena', 'Marco',
 ];
 
+// prettier-ignore
 const LAST_NAMES = [
-  'Rao',
-  'Sharma',
-  'Patel',
-  'Nair',
-  'Iyer',
-  'Gupta',
-  'Desai',
-  'Menon',
-  'Smith',
-  'Jones',
-  'Mueller',
-  'Schmidt',
-  'Tanaka',
-  'Suzuki',
-  'Silva',
-  'Santos',
-  'Chen',
-  'Lim',
-  'Novak',
-  'Rossi',
-  'Dubois',
-  'Khan',
+  'Rao', 'Sharma', 'Patel', 'Nair', 'Iyer', 'Gupta', 'Desai', 'Menon',
+  'Reddy', 'Chopra', 'Banerjee', 'Kulkarni', 'Smith', 'Jones', 'Brown',
+  'Taylor', 'Wilson', 'Davies', 'Mueller', 'Schmidt', 'Fischer', 'Weber',
+  'Becker', 'Hoffmann', 'Tanaka', 'Suzuki', 'Sato', 'Watanabe',
+  'Yamamoto', 'Nakamura', 'Silva', 'Santos', 'Oliveira', 'Souza', 'Costa',
+  'Pereira', 'Chen', 'Lim', 'Tan', 'Ng', 'Wong', 'Koh', 'Novak', 'Rossi',
+  'Dubois', 'Khan', 'Ahmed', 'Ali', 'Okafor', 'Mensah', 'Nguyen', 'Tran',
+  'Kowalski', 'Nowak', 'Andersson', 'Nilsson', 'Petrov', 'Ivanov',
+  'Garcia', 'Martinez',
 ];
 
 export interface SeedOptions {
