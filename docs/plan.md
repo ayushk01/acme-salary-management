@@ -126,13 +126,14 @@ per-field audit is cut — see the Cut section.*
 
 ---
 
-## Should — only if time is left after the README and the video
+## Should — built
 
 ### 12. Discrepancies
 
-- [ ] `GET /api/insights/discrepancies?country=` using the outlier query
-- [ ] Table: code, name, job title, salary, group median, percentage off
-- [ ] Tests: groups under 5 skipped; exactly 25% not listed
+- [x] `GET /api/insights/discrepancies?country=` using the outlier query
+- [x] Table: code, name, job title, salary, group median, percentage off
+- [x] Tests: groups under 5 skipped; exactly 25% not listed; both ends of
+      the rule
 
 ---
 

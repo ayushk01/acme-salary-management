@@ -245,3 +245,11 @@ nav.top .who {
   display: flex;
   gap: 0.5rem;
 }
+
+td.above {
+  color: #8a5a00;
+}
+
+td.below {
+  color: var(--danger);
+}

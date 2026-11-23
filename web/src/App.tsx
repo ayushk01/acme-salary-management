@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom';
 
 import { CountryOverviewPage } from './pages/CountryOverviewPage.js';
+import { DiscrepanciesPage } from './pages/DiscrepanciesPage.js';
 import { EmployeeFormPage } from './pages/EmployeeFormPage.js';
 import { EmployeesPage } from './pages/EmployeesPage.js';
 import { JobOverviewPage } from './pages/JobOverviewPage.js';
@@ -58,6 +59,7 @@ export function App() {
         <NavLink to="/employees">Employees</NavLink>
         <NavLink to="/insights/country">Pay by country</NavLink>
         <NavLink to="/insights/job">Pay by job title</NavLink>
+        <NavLink to="/insights/discrepancies">Outside range</NavLink>
         <span className="who">Signed in as {name}</span>
       </nav>
       <Routes>
@@ -66,6 +68,7 @@ export function App() {
         <Route path="/employees/:code/edit" element={<EmployeeFormPage editing />} />
         <Route path="/insights/country" element={<CountryOverviewPage />} />
         <Route path="/insights/job" element={<JobOverviewPage />} />
+        <Route path="/insights/discrepancies" element={<DiscrepanciesPage />} />
         <Route path="*" element={<Navigate to="/employees" replace />} />
       </Routes>
     </BrowserRouter>

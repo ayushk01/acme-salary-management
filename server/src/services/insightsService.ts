@@ -2,9 +2,12 @@ import { eq } from 'drizzle-orm';
 
 import type { AppDatabase } from '../db/connection.js';
 import { countries, jobTitles } from '../db/schema.js';
+import { MIN_GROUP_SIZE, OUTLIER_THRESHOLD_PERCENT } from '../domain/payRules.js';
 import {
+  type OutlierRow,
   countrySalaryStatistics,
   jobSalaryStatisticsByCountry,
+  outliersForCountry,
 } from '../repositories/insightsRepository.js';
 import { ServiceError } from './serviceError.js';
 
@@ -75,5 +78,35 @@ export function jobOverview(db: AppDatabase, jobTitleId: number): JobOverview {
       average: row.average,
       median: row.median,
     })),
+  };
+}
+
+export interface DiscrepanciesResult {
+  country: { code: string; name: string };
+  currency: string;
+  minorUnit: number;
+  thresholdPercent: number;
+  minimumGroupSize: number;
+  rows: OutlierRow[];
+}
+
+/**
+ * The thresholds come from the domain module and are handed to the SQL, so
+ * the rule has exactly one definition.
+ */
+export function discrepanciesForCountry(db: AppDatabase, code: string): DiscrepanciesResult {
+  const country = db.select().from(countries).where(eq(countries.code, code)).get();
+
+  if (country === undefined) {
+    throw new ServiceError('NOT_FOUND', 404, `We do not employ anyone in ${code}.`);
+  }
+
+  return {
+    country: { code: country.code, name: country.name },
+    currency: country.currencyCode,
+    minorUnit: country.currencyMinorUnit,
+    thresholdPercent: OUTLIER_THRESHOLD_PERCENT,
+    minimumGroupSize: MIN_GROUP_SIZE,
+    rows: outliersForCountry(db, code, OUTLIER_THRESHOLD_PERCENT, MIN_GROUP_SIZE),
   };
 }

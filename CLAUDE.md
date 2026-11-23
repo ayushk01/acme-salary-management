@@ -49,7 +49,7 @@ here stops being true, change it or delete it.
   float, never converted between currencies, never summed across
   countries. `amountMinor / 100` is the bug this rule exists to prevent.
 - **Pay rules live in one place** (`server/src/domain/payRules.ts`). They
-  are passed to SQL as bound parameters *(from slice 12)*, so the query
+  are passed to SQL as bound parameters, so the query
   and the pure function cannot disagree about the rule.
 - **Server-side pagination, search and filters** *(from slice 5)*. The
   browser never receives more than a page; 20 rows per page. Only the CSV

@@ -67,3 +67,22 @@ export interface JobOverview {
   jobTitle: { id: number; name: string };
   rows: JobCountryRow[];
 }
+
+export interface OutlierRow {
+  employeeCode: string;
+  fullName: string;
+  jobTitle: string;
+  salary: number;
+  median: number;
+  groupSize: number;
+  percentFromMedian: number;
+}
+
+export interface DiscrepanciesResult {
+  country: { code: string; name: string };
+  currency: string;
+  minorUnit: number;
+  thresholdPercent: number;
+  minimumGroupSize: number;
+  rows: OutlierRow[];
+}

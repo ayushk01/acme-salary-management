@@ -11,7 +11,11 @@ import {
   markEmployeeAsLeft,
 } from '../services/employeeWriteService.js';
 import { writeEmployeesCsv } from '../services/exportService.js';
-import { countryOverview, jobOverview } from '../services/insightsService.js';
+import {
+  countryOverview,
+  discrepanciesForCountry,
+  jobOverview,
+} from '../services/insightsService.js';
 import { ServiceError } from '../services/serviceError.js';
 import { validationError } from './errors.js';
 
@@ -139,6 +143,26 @@ export function createApiRouter(db: AppDatabase, clock: Clock): Router {
 
   router.get('/reference', (_req, res) => {
     res.json(listReference(db));
+  });
+
+  router.get('/insights/discrepancies', (req, res) => {
+    const country = String(req.query.country ?? '');
+    if (!/^[A-Z]{2}$/.test(country)) {
+      res.status(400).json({
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'Pick a country.',
+          fields: { country: 'Must be a two letter country code' },
+        },
+      });
+      return;
+    }
+
+    try {
+      res.json(discrepanciesForCountry(db, country));
+    } catch (error) {
+      handleServiceError(error, res);
+    }
   });
 
   router.get('/insights/country/:code', (req, res) => {
