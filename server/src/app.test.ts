@@ -8,7 +8,21 @@ describe('GET /api/health', () => {
     const response = await request(createApp()).get('/api/health');
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ status: 'ok' });
+    expect(response.body.status).toBe('ok');
+  });
+
+  // Without this, a failed deploy is invisible from outside: the previous
+  // container keeps serving and every endpoint answers exactly as before.
+  it('reports the build it is running', async () => {
+    const response = await request(createApp({ commit: 'abc1234' })).get('/api/health');
+
+    expect(response.body.commit).toBe('abc1234');
+  });
+
+  it('reports a local build when no commit was supplied', async () => {
+    const response = await request(createApp()).get('/api/health');
+
+    expect(response.body.commit).toBe('local');
   });
 });
 
