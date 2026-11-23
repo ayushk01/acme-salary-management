@@ -366,3 +366,68 @@ and `formatMoney`. Seventeen new tests, suite at 23 tests in 364 ms.
 
 Three stumbles in one small slice, all caught by lint, types or tests
 before I saw them. That is the argument for the harness being slice 0.
+
+---
+
+## Slice 3 — the container could not build (2026-11-23)
+
+This surfaced while building the database slice, but it is a deployment
+fault in its own right, so it is logged and committed on its own.
+
+**The failure.** The image would not build.
+`npm ci` runs `better-sqlite3`'s install script, which is `node-gyp
+rebuild`, and that died looking for Python, which `node:26-slim` does not
+carry. **This would have broken the Render deploy on the next push**, and
+the previous two slices had deployed cleanly, so it would have looked like
+the database work broke the deployment rather than the base image lacking
+a toolchain.
+
+It took two attempts to fix, because the first error pointed at the wrong
+place. BuildKit builds independent stages in parallel and reported the
+*runtime* stage's failure first, so Claude fixed only that one — and the
+next build failed in the *build* stage, which it had assumed was fine. It
+had read one error as evidence about the stage that had not reported yet.
+Both stages run `npm ci`; both needed the flag.
+
+The second puzzle was why `npm install better-sqlite3` succeeds in that
+same image while `npm ci` fails. I asked Claude to check a specific
+explanation rather than accept a vague one, and it holds up:
+
+`better-sqlite3` ships a `binding.gyp`, which npm treats as "build this
+with node-gyp" by default. The package opts out with `"gypfile": false`
+in its `package.json` — it has no `install` script at all. Our
+`package-lock.json` entry for it records neither `gypfile` nor
+`hasInstallScript`. So an install resolved from the lockfile never sees
+the opt-out, falls back to npm's binding.gyp default, and runs
+`node-gyp rebuild`.
+
+Three installs in the base image isolate it:
+
+| Install | Lockfile | Result |
+| --- | --- | --- |
+| `npm install better-sqlite3` | none | success |
+| `npm ci` | present | fails, `node-gyp rebuild` |
+| `npm install` | present | also fails, `node-gyp rebuild` |
+
+The third row is the one that matters: it is not the `npm ci` code path,
+it is the lockfile. Any install resolved from the lock loses the opt-out.
+Which also means a check that installs a package by hand, with no
+lockfile, says nothing about what the real build will do — exactly the
+mistake that made the earlier verification worthless.
+
+Claude had checked the base image *before* writing any code, which was the
+right instinct, but it checked `npm install better-sqlite3` rather than
+the command the Dockerfile actually runs. That install found a prebuilt
+binary and reported success, so the check passed while the real build
+failed. A verification that does not run the real command is not a
+verification, and it gave me false confidence for an hour.
+
+The fix came from a second, sharper check: the package ships prebuilt
+binaries for `linux-arm64`, `linux-x64` and others, and loads fine with
+`--ignore-scripts`. So the runtime install now passes that flag, and the
+image needs no Python and no compiler. Caught locally only because I had
+installed OrbStack earlier in the evening — otherwise the first I would
+have known was a red deploy.
+
+**Verified by rebuilding.** The image builds and the container starts.
+`--ignore-scripts` in the build stage did not disturb the Vite build.
