@@ -56,7 +56,7 @@ here stops being true, change it or delete it.
   export returns everything.
 - **No hard deletes** *(from slice 7)*. Employees are marked as left;
   their record, salary history and audit trail stay.
-- **Aggregates are computed in SQL, not JavaScript** *(from slice 9)*.
+- **Aggregates are computed in SQL, not JavaScript.**
   Count, min, max, average and median are the database's job, including
   the median, which SQLite has no built-in for.
 - **Country, job title and department are fixed lists**, never free text.

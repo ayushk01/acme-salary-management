@@ -102,10 +102,10 @@ per-field audit is cut — see the Cut section.*
 
 ### 9. Country overview
 
-- [ ] `GET /api/insights/country/:code` — headcount, min, max, average,
+- [x] `GET /api/insights/country/:code` — headcount, min, max, average,
       median, in that country's currency
-- [ ] Page showing all five
-- [ ] Tests: median for odd and even counts; leavers excluded
+- [x] Page showing all five
+- [x] Tests: median for odd and even counts; leavers excluded
 
 ### 10. Job overview
 

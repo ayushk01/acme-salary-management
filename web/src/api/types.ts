@@ -40,3 +40,14 @@ export interface SalaryHistoryRow {
 export interface SalaryHistoryResult {
   rows: SalaryHistoryRow[];
 }
+
+export interface CountryOverview {
+  country: { code: string; name: string };
+  currency: string;
+  minorUnit: number;
+  headcount: number;
+  min: number | null;
+  max: number | null;
+  average: number | null;
+  median: number | null;
+}

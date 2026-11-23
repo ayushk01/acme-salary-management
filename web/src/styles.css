@@ -187,3 +187,56 @@ a.button {
 .history h2 {
   font-size: 1rem;
 }
+
+nav.top {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+
+nav.top a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+nav.top a.active {
+  color: #1c1f23;
+  font-weight: 600;
+}
+
+nav.top .who {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.figure {
+  flex: 1 1 10rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.figure-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.figure-value {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}

@@ -10,6 +10,7 @@ import {
   editEmployee,
   markEmployeeAsLeft,
 } from '../services/employeeWriteService.js';
+import { countryOverview } from '../services/insightsService.js';
 import { ServiceError } from '../services/serviceError.js';
 import { validationError } from './errors.js';
 
@@ -121,6 +122,14 @@ export function createApiRouter(db: AppDatabase, clock: Clock): Router {
 
   router.get('/reference', (_req, res) => {
     res.json(listReference(db));
+  });
+
+  router.get('/insights/country/:code', (req, res) => {
+    try {
+      res.json(countryOverview(db, req.params.code));
+    } catch (error) {
+      handleServiceError(error, res);
+    }
   });
 
   router.get('/employees/:code/salary-history', (req, res) => {
