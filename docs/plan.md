@@ -116,8 +116,9 @@ per-field audit stays a Could — see slice 13.*
 ### 11. CSV export
 
 - [ ] `GET /api/employees.csv` — same filters, every matching row
-- [ ] Chunked write, UTF-8 BOM, CRLF, salary as a number with currency
-      beside it
+- [ ] Chunked write, UTF-8 BOM, CRLF, salary as a **plain number** with the
+      currency code in its own column — never formatted money, so Excel
+      treats the column as numeric and can total or sort it
 - [ ] Export button on the list page, reusing the URL's filters
 - [ ] Test: header row, and the row count matches the filtered total
 
@@ -125,7 +126,7 @@ per-field audit stays a Could — see slice 13.*
 
 ---
 
-## Should — build only once the Must list is live and green
+## Should — only if time is left after the README and the video
 
 ### 12. Discrepancies
 
@@ -135,12 +136,15 @@ per-field audit stays a Could — see slice 13.*
 
 ---
 
-## Could — only if everything above is finished
+## Cut
 
-### 13. Full audit view
+### 13. Full audit view — **not being built**
 
-- [ ] `audit_events` table and per-edit field diffs
-- [ ] Added / edited / salary changed / left, newest first
+`audit_events` and per-edit field diffs. The Must-level answer to "who
+changed this and when" ships in slice 8 (salary history plus
+last-changed-by/at), which is what the requirements promise. A complete
+per-field change history was always a *Could*, and the time is better
+spent on the README and the video.
 
 ---
 
