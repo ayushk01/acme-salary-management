@@ -200,3 +200,23 @@ Yes, create and push
 ```text
 Yes, Render
 ```
+
+### Follow-up
+
+```text
+Yes, push it
+```
+
+---
+
+## Slice 2 — pay rules and money (2026-11-23)
+
+### Main prompt
+
+```text
+I have deployed the Docker image on render. This is the url: https://acme-salary-management-zobo.onrender.com/
+
+I've also installed orbstack via brew in this Mac locally, so you can run Docker command if required.
+
+You can proceed with slice 2. Let me know in case of any trouble you face.
+```

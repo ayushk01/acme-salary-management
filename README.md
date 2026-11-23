@@ -4,7 +4,14 @@ Web software for ACME's HR team to manage salary data for 10,000 employees
 across many countries, and to answer questions about how the organisation
 pays its people.
 
-**Live URL:** _not deployed yet — added when slice 1 reaches Render._
+**Live URL:** https://acme-salary-management-zobo.onrender.com
+
+Hosted on a free tier with no attached disk, so two things follow: the
+first request after a period of inactivity waits for the container to
+start, and anything added or edited is lost when the container is
+replaced. The database is rebuilt from a deterministic seed whenever it is
+empty, so the app is never blank. The reasoning is in
+[docs/design.md](docs/design.md) section 9.
 
 ---
 

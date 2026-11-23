@@ -310,3 +310,59 @@ layer itself gets its first real test on Render's builder.
 changed its route matching, and the usual `app.get('*')` SPA fallback no
 longer works. It used a plain middleware checking `req.path` instead,
 which sidesteps the routing change entirely and is easier to read.
+
+**Closed.** I deployed the Docker image to Render myself and gave Claude
+the URL. It checked all four behaviours against the live site — health,
+the React shell, the SPA fallback and the 404 on unknown API routes — and
+they match what ran locally. I also installed OrbStack, so Docker is
+available on this machine from here on; the Dockerfile is no longer the
+one unverifiable artefact, which matters most at slice 3, where
+`better-sqlite3` brings a native build into the image.
+
+---
+
+## Slice 2 — pay rules and money, test first (2026-11-23)
+
+**What I asked.** Proceed with slice 2.
+
+**What was built.** `server/src/domain/payRules.ts` with
+`OUTLIER_THRESHOLD_PERCENT`, `MIN_GROUP_SIZE`, `isOutsideRange` and
+`isGroupLargeEnough`; `web/src/money.ts` with `minorUnitsToDecimalString`
+and `formatMoney`. Seventeen new tests, suite at 23 tests in 364 ms.
+
+**Decisions worth recording.**
+
+- **No float ever touches money.** The obvious `amountMinor / 100` is the
+  implementation that quietly loses money, so the conversion to a decimal
+  string is done with integer and string operations only, and the
+  resulting string is handed to `Intl.NumberFormat`, which accepts one.
+  The amount reaches the formatter intact.
+- **`Intl` rather than a hand-rolled formatter**, because Indian grouping
+  is 2,2,3 — ₹12,50,000 rather than ₹1,250,000 — and an HR manager in
+  India would notice immediately. Writing that by hand to avoid a platform
+  dependency would be the wrong trade.
+- **Money formatting lives in `web/` only, and is not shared.** The CSV
+  export in slice 11 will need the same minor-units-to-decimal conversion
+  on the server. Claude proposed a third `shared/` workspace for it and I
+  turned it down: a whole workspace with its own build for one five-line
+  function, on the strength of a caller that does not exist yet. The
+  decision gets revisited at slice 11, when there are two real callers.
+
+**Where Claude was wrong, and where the tests earned their keep.**
+
+- Its first INR test expected `formatMoney(1_250_000, 'INR')` to produce
+  ₹12,50,000.00. That is wrong by a factor of a hundred — 1,250,000 *minor*
+  units is ₹12,500.00, which is below where Indian grouping even begins, so
+  the test would not have exercised the thing it was written to check. The
+  implementation was right and the expectation was wrong. Exactly the
+  mistake that integer minor units exist to prevent, made while writing the
+  test for integer minor units, and caught in the red run.
+- It wrote ` ` escapes into a regular expression and the literal
+  characters landed in the file instead. ESLint's `no-irregular-whitespace`
+  caught it. Replaced with `\s`, which is simpler and reads better anyway.
+- It then took two attempts to name the type for Intl's string overload —
+  `StringNumericLiteral`, then the correct `Intl.StringNumericLiteral`.
+  Minor, but it had the error message in front of it the first time.
+
+Three stumbles in one small slice, all caught by lint, types or tests
+before I saw them. That is the argument for the harness being slice 0.

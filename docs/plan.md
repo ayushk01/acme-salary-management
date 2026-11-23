@@ -16,25 +16,25 @@ line is live and green.**
 
 ### 0. Repo setup
 
-- [ ] npm workspaces (`server`, `web`), TypeScript strict, eslint, prettier
-- [ ] Vitest running, with one trivial passing test to prove the wiring
-- [ ] GitHub Actions: lint, typecheck, test on push — green before slice 1
+- [x] npm workspaces (`server`, `web`), TypeScript strict, eslint, prettier
+- [x] Vitest running, with one trivial passing test to prove the wiring
+- [x] GitHub Actions: lint, typecheck, test on push — green before slice 1
 
 ### 1. Deploy a hello-world
 
-- [ ] Multi-stage Dockerfile; Express serves `web/dist` and `/api/health`,
+- [x] Multi-stage Dockerfile; Express serves `web/dist` and `/api/health`,
       port from `PORT` so the host stays swappable
-- [ ] Deployed to a free tier with no disk; live URL responding
-- [ ] Record the URL in the README
+- [x] Deployed to a free tier with no disk; live URL responding
+- [x] Record the URL in the README
 
 *First, not last. A container surprise should cost an hour now, not at
 midnight.*
 
 ### 2. Pay rules (pure, TDD)
 
-- [ ] Failing test: exactly 25% above the median is **not** outside range
-- [ ] `isOutsideRange`, `OUTLIER_THRESHOLD_PERCENT`, `MIN_GROUP_SIZE`
-- [ ] Money formatting across minor-unit 2 (INR) and 0 (JPY)
+- [x] Failing test: exactly 25% above the median is **not** outside range
+- [x] `isOutsideRange`, `OUTLIER_THRESHOLD_PERCENT`, `MIN_GROUP_SIZE`
+- [x] Money formatting across minor-unit 2 (INR) and 0 (JPY)
 
 *No database yet. These are the rules the whole product is judged on and
 they are testable in milliseconds.*
