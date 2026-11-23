@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 import { apiGet } from '../api/client.js';
 import type { EmployeeListResult, ReferenceLists } from '../api/types.js';
@@ -78,7 +78,12 @@ export function EmployeesPage() {
 
   return (
     <main>
-      <h1>Employees</h1>
+      <div className="page-head">
+        <h1>Employees</h1>
+        <Link className="button" to="/employees/new">
+          Add employee
+        </Link>
+      </div>
 
       <form
         className="filters"
@@ -185,7 +190,9 @@ export function EmployeesPage() {
         <tbody>
           {result?.rows.map((employee) => (
             <tr key={employee.employeeCode}>
-              <td>{employee.employeeCode}</td>
+              <td>
+                <Link to={`/employees/${employee.employeeCode}/edit`}>{employee.employeeCode}</Link>
+              </td>
               <td>{employee.fullName}</td>
               <td>{employee.jobTitle}</td>
               <td>{employee.department}</td>

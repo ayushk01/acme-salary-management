@@ -1,7 +1,7 @@
 import { type SQL, and, asc, desc, eq, sql } from 'drizzle-orm';
 
 import type { AppDatabase } from '../db/connection.js';
-import { countries, departments, employees, jobTitles } from '../db/schema.js';
+import { countries, departments, employees, jobTitles, salaryChanges } from '../db/schema.js';
 import { DEFAULT_PAGE_SIZE, offsetFor } from '../domain/paging.js';
 
 export interface EmployeeFilters {
@@ -118,4 +118,36 @@ export function findEmployees(db: AppDatabase, filters: EmployeeFilters = {}): E
     .get();
 
   return { rows, total: counted?.total ?? 0 };
+}
+
+export type EmployeeRecord = typeof employees.$inferSelect;
+export type NewEmployee = typeof employees.$inferInsert;
+export type NewSalaryChange = typeof salaryChanges.$inferInsert;
+
+/** The stored row, unjoined. Writes need the id and the current salary. */
+export function findEmployeeByCode(db: AppDatabase, code: string): EmployeeRecord | undefined {
+  return db.select().from(employees).where(eq(employees.employeeCode, code)).get();
+}
+
+export function insertEmployee(db: AppDatabase, values: NewEmployee): void {
+  db.insert(employees).values(values).run();
+}
+
+/**
+ * Applies the field changes and, when the salary moved, records the change in
+ * the same transaction. The two must not be able to drift apart: the employee
+ * row is what every statistic reads, and the history is what HR is shown.
+ */
+export function updateEmployeeWithSalaryChange(
+  db: AppDatabase,
+  id: number,
+  fields: Partial<NewEmployee>,
+  change: NewSalaryChange | null,
+): void {
+  db.transaction((tx) => {
+    tx.update(employees).set(fields).where(eq(employees.id, id)).run();
+    if (change !== null) {
+      tx.insert(salaryChanges).values(change).run();
+    }
+  });
 }

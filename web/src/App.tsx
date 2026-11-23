@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import { EmployeeFormPage } from './pages/EmployeeFormPage.js';
 import { EmployeesPage } from './pages/EmployeesPage.js';
 import { getSessionName, setSessionName } from './session.js';
 
@@ -53,6 +54,8 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/employees" element={<EmployeesPage />} />
+        <Route path="/employees/new" element={<EmployeeFormPage editing={false} />} />
+        <Route path="/employees/:code/edit" element={<EmployeeFormPage editing />} />
         <Route path="*" element={<Navigate to="/employees" replace />} />
       </Routes>
     </BrowserRouter>

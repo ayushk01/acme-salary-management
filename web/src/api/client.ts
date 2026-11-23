@@ -39,3 +39,32 @@ export async function apiGet<T>(path: string): Promise<T> {
 
   return body as T;
 }
+
+/** POST/PATCH with the session name attached, since every write must say who. */
+export async function apiSend<T>(
+  method: 'POST' | 'PATCH',
+  path: string,
+  body: unknown,
+): Promise<T> {
+  const name = getSessionName();
+
+  const response = await fetch(path, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(name === '' ? {} : { 'X-Changed-By': name }),
+    },
+    body: JSON.stringify(body),
+  });
+
+  const parsed: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    if (isApiErrorBody(parsed)) {
+      throw new ApiError(parsed.error.code, parsed.error.message, parsed.error.fields ?? {});
+    }
+    throw new ApiError('UNEXPECTED', `Request failed with status ${response.status}`);
+  }
+
+  return parsed as T;
+}

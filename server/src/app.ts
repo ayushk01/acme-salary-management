@@ -3,6 +3,7 @@ import path from 'node:path';
 import express, { type Express } from 'express';
 
 import type { AppDatabase } from './db/connection.js';
+import { type Clock, systemClock } from './domain/clock.js';
 import { createApiRouter } from './routes/api.js';
 
 export interface AppOptions {
@@ -27,6 +28,8 @@ export interface AppOptions {
    * Reported so the cold-start budget can be checked on the deployed URL.
    */
   databaseMs?: number;
+  /** Injected so "defaults to today" is testable. Defaults to the real clock. */
+  clock?: Clock;
 }
 
 export function createApp(options: AppOptions): Express {
@@ -41,7 +44,7 @@ export function createApp(options: AppOptions): Express {
     res.json({ status: 'ok', commit, ...(databaseMs === undefined ? {} : { databaseMs }) });
   });
 
-  app.use('/api', createApiRouter(options.db));
+  app.use('/api', createApiRouter(options.db, options.clock ?? systemClock));
 
   const { staticDir } = options;
   if (staticDir !== undefined) {
