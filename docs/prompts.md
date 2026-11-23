@@ -117,3 +117,60 @@ The rest, decided quickly:
    * Deadline: tonight.
 * C3–C7, the "done when" lines, the typos, the persona wording: "accept all, apply them".
 ```
+
+---
+
+## Step B — design (2026-11-23)
+
+### Main prompt
+
+```text
+Start step B
+```
+
+### My answers to the four decisions
+
+```text
+Deploy + persistence: Volume-backed SQLite — one Node process serves the
+API and the built React app; the SQLite file sits on a persistent disk.
+Edits survive redeploys and restarts.
+
+Stack: Drizzle ORM — typed queries and real migrations.
+
+Test boundary: Domain + SQL on in-memory DB — pure functions for the
+outlier rule and money formatting; repository and service tests against a
+:memory: SQLite seeded with ~10 hand-written rows; a few HTTP tests
+pinning the error format and pagination contract.
+
+UI shape: Routed pages, filters in the URL — react-router,
+/employees?country=IN&page=2 plus pages for the country, job and
+discrepancies views.
+```
+
+### Revisions before committing
+
+```text
+Not yet. Three changes first, then commit.
+
+1. docs/requirements.md must be ONE page (the brief says so). Trim it to
+   about 500 words: problem, user, questions, features as one line each
+   with Must/Should/Could, out of scope with reasons, assumptions, done
+   means. Move Data, Rules, Performance and Seed into design.md, and the
+   detailed "done when" lines into docs/acceptance-criteria.md. Lose no
+   decisions, only relocate them. Show me the trimmed version before
+   writing.
+
+2. Audit wording: requirements must not promise full change history as a
+   Must. Must = salary history plus last-changed-by/at. Full audit view
+   stays Could. Make requirements, design and plan agree.
+
+3. Hosting:  I checked on fly.io and I have to have a valid payment method to mount a volume, which I don't want to do at this point. Switch to no persistent disk + seed on boot when empty; update the
+      deployment section and note the trade-off (data resets on redeploy;
+      first load may be slow if the host sleeps).
+
+Commits, in this order:
+- "docs: trim requirements to one page, move detail to design"
+- "docs: add design and slice plan"
+
+Then start slice 0 and stop for my review before the Dockerfile.
+```
