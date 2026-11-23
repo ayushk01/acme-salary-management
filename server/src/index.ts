@@ -6,6 +6,7 @@ import { createApp } from './app.js';
 import { createDatabase } from './db/connection.js';
 import { runMigrations } from './db/migrate.js';
 import { loadReferenceData } from './db/referenceData.js';
+import { seedDatabase } from './seed/seed.js';
 
 const port = Number(process.env.PORT ?? 3000);
 const databasePath = process.env.DATABASE_PATH ?? './data/acme.db';
@@ -25,7 +26,16 @@ const { db } = createDatabase(databasePath);
 runMigrations(db);
 loadReferenceData(db);
 
-console.log(`Database ready at ${databasePath} in ${Date.now() - startedAt}ms`);
+const seeded = seedDatabase(db);
+const databaseMs = Date.now() - startedAt;
+
+console.log(
+  seeded.employeesCreated === 0
+    ? `Database ready at ${databasePath} in ${databaseMs}ms (already seeded)`
+    : `Database ready at ${databasePath} in ${databaseMs}ms ` +
+        `(seeded ${seeded.employeesCreated} employees, ` +
+        `${seeded.salaryChangesCreated} salary changes)`,
+);
 
 // Render sets RENDER_GIT_COMMIT in the container. Reporting it means a
 // deploy can be confirmed by reading the live URL, rather than trusting that
