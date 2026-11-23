@@ -6,7 +6,12 @@ import {
   updateEmployeeWithSalaryChange,
 } from '../repositories/employeeRepository.js';
 import { type EmployeeSummary, listEmployees } from './employeeService.js';
-import { duplicateEmployeeCode, employeeHasLeft, employeeNotFound } from './serviceError.js';
+import {
+  countryChangeNotSupported,
+  duplicateEmployeeCode,
+  employeeHasLeft,
+  employeeNotFound,
+} from './serviceError.js';
 
 export interface NewEmployeeInput {
   employeeCode: string;
@@ -80,6 +85,10 @@ export function editEmployee(
   // Someone who has left keeps their history, but nothing about them changes.
   if (existing.status === 'left') {
     throw employeeHasLeft(code);
+  }
+
+  if (edit.countryCode !== undefined && edit.countryCode !== existing.countryCode) {
+    throw countryChangeNotSupported();
   }
 
   const { salaryReason, salaryEffectiveDate, ...fields } = edit;

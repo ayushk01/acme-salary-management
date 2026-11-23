@@ -147,6 +147,7 @@ export function EmployeeForm({
         <select
           id="countryCode"
           value={countryCode}
+          disabled={editing}
           onChange={(event) => setCountryCode(event.target.value)}
         >
           {reference.countries.map((item) => (
@@ -155,6 +156,12 @@ export function EmployeeForm({
             </option>
           ))}
         </select>
+        {editing && (
+          <span className="hint">
+            An employee cannot be moved to another country: it would change their currency and make
+            their salary history incomparable.
+          </span>
+        )}
         <FieldError message={errors.countryCode} />
       </div>
 

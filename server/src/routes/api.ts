@@ -105,7 +105,13 @@ function changedByFrom(req: Request, res: Response): string | null {
 
 function handleServiceError(error: unknown, res: Response): void {
   if (error instanceof ServiceError) {
-    res.status(error.status).json({ error: { code: error.code, message: error.message } });
+    res.status(error.status).json({
+      error: {
+        code: error.code,
+        message: error.message,
+        ...(error.fields === undefined ? {} : { fields: error.fields }),
+      },
+    });
     return;
   }
   throw error;
