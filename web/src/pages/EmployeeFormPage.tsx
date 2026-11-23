@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { ApiError, apiGet, apiSend } from '../api/client.js';
 import type { EmployeeListResult, EmployeeSummary, ReferenceLists } from '../api/types.js';
+import { localDateIso } from '../dates.js';
 import { type EmployeeInput, EmployeeForm } from './EmployeeForm.js';
 
 /** Serves both adding and editing: the only difference is whether a code exists. */
@@ -55,6 +56,8 @@ export function EmployeeFormPage({ editing }: { editing: boolean }) {
           countryCode: values.countryCode,
           salaryMinor: values.salaryMinor,
           salaryReason: values.salaryReason ?? 'correction',
+          // The user's calendar date, not the server's. See docs/design.md §3.
+          salaryEffectiveDate: localDateIso(),
         })
       : apiSend<EmployeeSummary>('POST', '/api/employees', values);
 

@@ -189,6 +189,12 @@ index.
 - **People who have left** are excluded from every statistic, hidden from
   the list until an "include left" toggle is ticked, and read-only. Their
   record and history remain.
+- **An effective date is a calendar date, not a timestamp.** It is the day
+  a change takes effect, chosen by the person making it, so the browser
+  sends its own local date. The server's UTC today is only a fallback for
+  a request that sends none — and the two differ by a day between
+  midnight and 05:30 in India, which is exactly when a default would be
+  wrong and nobody would notice.
 - **Who changed it.** There is no login in v1, so the user types their
   name once; it is held for the session and attached to every write.
 - **Two people editing at once.** The last save wins. No locking, no

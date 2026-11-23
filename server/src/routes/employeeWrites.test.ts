@@ -121,6 +121,18 @@ describe('PATCH /api/employees/:code', () => {
     expect(changes[0]?.effectiveDate).toBe('2026-11-24');
   });
 
+  // An effective date is a calendar date chosen by whoever makes the change,
+  // so the browser sends its own. The server's UTC today is only a fallback,
+  // and between midnight and 05:30 in India the two differ by a day.
+  it('uses the effective date the client sent rather than its own', async () => {
+    await request(app())
+      .patch('/api/employees/EMP00001')
+      .set('X-Changed-By', WHO)
+      .send({ salaryMinor: 1_200_000, salaryReason: 'raise', salaryEffectiveDate: '2026-11-25' });
+
+    expect(changesFor('EMP00001')[0]?.effectiveDate).toBe('2026-11-25');
+  });
+
   it('records no salary change when the salary did not change', async () => {
     await request(app())
       .patch('/api/employees/EMP00001')
