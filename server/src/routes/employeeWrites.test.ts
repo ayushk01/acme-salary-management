@@ -174,3 +174,31 @@ describe('POST /api/employees/:code/leave', () => {
     expect(list.body.total).toBe(0);
   });
 });
+
+// Moving an employee between countries is out of scope: it changes their
+// currency, which makes their salary history incomparable. The schema
+// accepted countryCode anyway, so an edit could quietly do it.
+describe('changing an employee country', () => {
+  it('is refused, with the reason on the country field', async () => {
+    const response = await request(app())
+      .patch('/api/employees/EMP00001')
+      .set('X-Changed-By', WHO)
+      .send({ countryCode: 'US' });
+
+    expect(response.status).toBe(409);
+    expect(response.body.error.code).toBe('COUNTRY_CHANGE_NOT_SUPPORTED');
+    expect(response.body.error.fields.countryCode).toBeTruthy();
+    expect(stored('EMP00001')?.countryCode).toBe('IN');
+  });
+
+  // The form posts every field, so an unchanged country must still pass.
+  it('is allowed when the country sent is the one they are already in', async () => {
+    const response = await request(app())
+      .patch('/api/employees/EMP00001')
+      .set('X-Changed-By', WHO)
+      .send({ countryCode: 'IN', fullName: 'Asha Rao-Menon' });
+
+    expect(response.status).toBe(200);
+    expect(stored('EMP00001')?.fullName).toBe('Asha Rao-Menon');
+  });
+});
