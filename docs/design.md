@@ -273,7 +273,7 @@ All responses JSON; all money as integer minor units with its currency.
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/api/reference` | countries, job titles, departments for the dropdowns |
-| GET | `/api/employees` | list: `search, country, jobTitle, department, includeLeft, sort=name\|salary, dir, page, pageSize` |
+| GET | `/api/employees` | list: `search, country, jobTitleId, departmentId, includeLeft, sort=name\|salary, dir, page, pageSize` |
 | GET | `/api/employees/:code` | one employee, including who last changed it and when |
 | POST | `/api/employees` | add |
 | PATCH | `/api/employees/:code` | edit |

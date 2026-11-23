@@ -14,6 +14,12 @@ here stops being true, change it or delete it.
   wait for my decision.
 - **Test first.** Write the failing test, run it, show me the red output,
   then the minimum code to pass, then refactor.
+- **Show the test table before the red commit.** List the test names with
+  their expected values and wait for my OK, before the code exists. My
+  review is of the expectations, not the implementation.
+- **When a test fails after the code is written**, say plainly whether the
+  test or the code was wrong, and which requirement decides it. Do not
+  just change the expectation until it passes.
 - **Commit the failing test and the passing code separately** *(from
   slice 4)*. Two commits: `test:` with the red test, then `feat:`/`fix:`
   with the code that turns it green. Push them together, so CI judges the
