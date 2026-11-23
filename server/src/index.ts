@@ -27,7 +27,12 @@ loadReferenceData(db);
 
 console.log(`Database ready at ${databasePath} in ${Date.now() - startedAt}ms`);
 
-const app = createApp({ staticDir });
+// Render sets RENDER_GIT_COMMIT in the container. Reporting it means a
+// deploy can be confirmed by reading the live URL, rather than trusting that
+// a 200 came from the build we just pushed.
+const commit = process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? 'local';
+
+const app = createApp({ staticDir, commit });
 
 app.listen(port, () => {
   console.log(`ACME salary management listening on port ${port}`);

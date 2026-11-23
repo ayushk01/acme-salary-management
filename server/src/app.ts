@@ -8,6 +8,11 @@ export interface AppOptions {
    * the API without needing a front end to have been built.
    */
   staticDir?: string;
+  /**
+   * Short identifier of the build being served, reported by the health
+   * endpoint so a deploy can be verified from outside.
+   */
+  commit?: string;
 }
 
 export function createApp(options: AppOptions = {}): Express {
@@ -15,8 +20,10 @@ export function createApp(options: AppOptions = {}): Express {
 
   app.use(express.json());
 
+  const commit = options.commit ?? 'local';
+
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok' });
+    res.json({ status: 'ok', commit });
   });
 
   const { staticDir } = options;
