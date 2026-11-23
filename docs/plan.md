@@ -51,12 +51,12 @@ they are testable in milliseconds.*
 
 ### 4. Seed
 
-- [ ] Fixed-seed PRNG, no dependency, no `Math.random`
-- [ ] 10,000 employees in one transaction, timed, time printed
-- [ ] Guarded: runs only when the employees table is empty
-- [ ] Includes leavers, salary history, and deliberate outliers in groups
+- [x] Fixed-seed PRNG, no dependency, no `Math.random`
+- [x] 10,000 employees in one transaction, timed, time printed
+- [x] Guarded: runs only when the employees table is empty
+- [x] Includes leavers, salary history, and deliberate outliers in groups
       of at least 5
-- [ ] Test: two runs of the seed produce identical data
+- [x] Test: two runs of the seed produce identical data
 - [ ] **Boot budget: migrate + seed under ~2s** — it runs on every cold
       start now, so this is the HR manager's wait, not a build statistic
 
@@ -147,7 +147,8 @@ per-field audit stays a Could — see slice 13.*
 ## Wrap-up — reserve the last 30 minutes
 
 - [ ] README: live URL, how to run, the decisions and what was cut,
-      including that data resets on redeploy
+      including that data resets on redeploy and that the first load after
+      the app sleeps can take up to a minute on the free tier
 - [ ] Performance notes: boot and seed time, measured endpoint timings
 - [ ] Final pass on `ai-log.md` and `prompts.md`
 - [ ] 3–5 minute video outline

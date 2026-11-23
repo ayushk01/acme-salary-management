@@ -377,13 +377,22 @@ that the mock returns what it was told to.
 
 ## 8. Performance
 
-Two budgets:
+A budget, and a measurement that replaced one:
 
 - **Under 500 ms** for search and list at 10,000 employees, and for each
   insight query.
-- **Under about 2 seconds** for migrations plus the seed at boot, because
-  with no persistent disk (section 9) that cost is paid on every cold
-  start and the HR manager waits through it.
+- **Boot — migrations, reference data and seed:** about 330 ms on a
+  developer machine, and **7.6 s measured on the deployed free tier**,
+  whose CPU is shared and throttled. That figure is one sample, taken on
+  the boot immediately after a deploy. The original 2 second budget was an
+  estimate from local timings and is not achievable on that hardware; the
+  real number is recorded here rather than the target quietly restated.
+  With no persistent disk (section 9) this is paid on every cold start, on
+  top of the platform's own container start. The seed is deterministic, so
+  the database could instead be built during `docker build` and shipped
+  inside the image, making boot near-instant; skipped as over-building for
+  a demo. `/api/health` reports the figure, so it stays measured rather
+  than assumed.
 
 How they are met:
 
@@ -429,7 +438,7 @@ database.
   employees — but edits are not durable.
 - **The first load after the host sleeps is slow.** Free hosting tiers
   stop an idle container; the next request pays container start plus
-  migrations plus the seed. Hence the 2-second boot budget in section 8.
+  migrations plus the seed — measured at 7.6 s on this tier, see section 8.
 
 This is acceptable for v1 because there is no login and no real salary
 data in it: it is a demo over reproducible fixtures, not a system of

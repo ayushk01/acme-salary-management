@@ -487,6 +487,56 @@ proof, and I confirmed it green in the Render dashboard myself.
 
 ---
 
+## Slice 4 — deterministic seed (2026-11-24)
+
+**What I asked.** Approve CLAUDE.md with two edits, add the build commit
+to `/api/health` as a tiny test-first step, then start slice 4.
+
+**What was built.** A hand-written mulberry32 PRNG, a seed producing
+10,000 employees and 6,912 salary changes in one transaction, the build
+commit and database boot time on `/api/health`, and eleven new tests.
+Forty-one tests, still under half a second.
+
+**Decisions worth recording.**
+
+- **The outlier group is constructed, not hoped for.** A random spread
+  rarely leaves a clear case inside a group big enough to judge, and the
+  discrepancies screen is worthless without one. So the seed builds SDE2
+  in India explicitly: nine active people, two deliberate outliers, the
+  rest clustered tightly so the median sits with the cluster. Everyone
+  else varies by ±10%, which keeps ordinary employees from being mistaken
+  for outliers.
+- **Salary history is built backwards from the current salary.** Walking
+  forwards from a starting figure would leave the newest change
+  disagreeing with what the employee is actually paid. Building backwards
+  makes that impossible by construction rather than by care.
+- **Tests seed 300 employees, not 10,000.** Same code path, and the suite
+  stays fast enough to run on every save. The 10,000 is asserted as a
+  constant rather than by running it.
+- **`/api/health` now reports the build commit and the boot time.**
+  Before this, a failed deploy was invisible from outside: the previous
+  container keeps serving and every endpoint answers exactly as before, so
+  a 200 proved nothing. It proved its worth immediately — the next deploy
+  was confirmed by reading `a561935` back from the live URL instead of
+  asking me to open the dashboard.
+
+**Where Claude was wrong.** On CLAUDE.md it argued for *leaving out* the
+three design rules that start at later slices, on the grounds that a file
+claiming to list rules we follow should not list rules we do not yet
+follow. I told it to mark them with their slice instead. That is plainly
+better — the rules are still visible to a future session, and the file
+stays honest about what binds today. It had framed this as a binary
+between honest-and-incomplete and complete-and-aspirational, and missed
+the obvious third option.
+
+**The new commit rule, first use.** Failing test and passing code as
+separate commits worked cleanly, and Claude pointed out something I had
+not considered: pushing both together means CI judges the green tip, so a
+deliberately red commit never shows up as a failed run. That is now
+written into CLAUDE.md.
+
+---
+
 ## CLAUDE.md — late (2026-11-24)
 
 `CLAUDE.md` was step D of my own order of work and should have been

@@ -236,3 +236,19 @@ Commit the working tree changes with a sensible message.
 ```text
 Push and continue
 ```
+
+---
+
+## Slice 4 — deterministic seed (2026-11-24)
+
+### Main prompt
+
+```text
+Approve CLAUDE.md with two edits, then commit as docs: add CLAUDE.md.
+
+1. The opening says these are rules we have actually followed, but some start later. Mark them instead of leaving them out: "separate test and code commits (from slice 4)", and add the three design rules with their slice: server-side pagination, search and filters (from slice 5), no hard deletes (from slice 7), aggregates in SQL not JS (from slice 9). Mark "pay rules passed to SQL as bound parameters" the same way if no query uses them yet. Change the opening line to say marked rules start at that slice.
+
+2. Yes to the commit in /api/health, as a tiny step before slice 4: failing test commit, then the code commit. Ten minutes at most. After that you verify every deploy yourself by reading the commit back from the live URL.
+
+Then start slice 4.
+```
