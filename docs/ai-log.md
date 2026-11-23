@@ -431,3 +431,49 @@ have known was a red deploy.
 
 **Verified by rebuilding.** The image builds and the container starts.
 `--ignore-scripts` in the build stage did not disturb the Vite build.
+
+---
+
+## Slice 3 — database (2026-11-23)
+
+**What I asked.** Push slice 2 and continue.
+
+**What was built.** Drizzle schema for five tables, generated migrations,
+a connection that sets the pragmas, reference data for countries, job
+titles and departments, migrations running at boot, and a `:memory:` test
+helper. Thirty tests, 452 ms.
+
+**Decisions worth recording.**
+
+- **`foreign_keys = ON` as a pragma at every connection.** SQLite has
+  foreign keys off by default, so without this the references declared in
+  the schema would be decoration rather than constraints. There is a test
+  that inserts an employee into a country that does not exist and expects
+  it to be rejected — otherwise this is exactly the kind of thing that
+  looks right in the schema file and does nothing in production.
+- **Synchronous queries in tests.** Drizzle's relational query API
+  (`db.query.x.findMany()`) returns a promise even on a synchronous
+  driver. Since `better-sqlite3` was chosen partly so tests need no async
+  plumbing, the tests use `db.select().from(x).all()` instead, which
+  really is synchronous.
+- **Five tables, not the six the plan said.** The sixth is `audit_events`,
+  which the design defers to the Could-level slice 13. Claude flagged the
+  mismatch rather than ticking the box, and I reworded the plan.
+- **The test helper is a factory, not a fixed fixture.** The plan called
+  for "~10 known rows". A factory that defaults every field and lets a
+  test override only what it is about is the reusable half; the specific
+  ten rows depend on which aggregate is being checked, so they land with
+  the first query that needs them rather than being guessed now. The plan
+  is reworded to say so.
+
+**Caught by reasoning rather than by testing.** The runtime image had to
+carry `server/drizzle`: migrations run at boot, so the generated SQL has
+to ship. That one would have failed at container start rather than at
+build, which is a slower and more confusing way to find out.
+
+**Verified by running the real thing.** The image builds, the container
+starts, migrations create all five tables plus Drizzle's own bookkeeping
+table, the eight countries load, and the API and React build are both
+served. Migrations and reference data take **24 ms**, against the 2 second
+boot budget the design sets for a cold start — comfortable, and a measured
+number rather than an estimate.

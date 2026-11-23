@@ -35,6 +35,8 @@ RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=build /app/server/dist server/dist
 COPY --from=build /app/web/dist web/dist
+# Migrations run at boot, so the generated SQL has to ship with the image.
+COPY --from=build /app/server/drizzle server/drizzle
 
 # The host supplies PORT; 3000 is the local default.
 EXPOSE 3000

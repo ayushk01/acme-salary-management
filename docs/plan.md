@@ -41,11 +41,13 @@ they are testable in milliseconds.*
 
 ### 3. Database
 
-- [ ] Drizzle schema for the six tables, migrations generated
-- [ ] Migrations run at boot; WAL and foreign keys on
-- [ ] Reference data: countries with currency and minor unit, job titles,
+- [x] Drizzle schema for the five tables (`audit_events` only if slice 13
+      is reached), migrations generated
+- [x] Migrations run at boot; WAL and foreign keys on
+- [x] Reference data: countries with currency and minor unit, job titles,
       departments
-- [ ] `:memory:` test helper that builds a database with ~10 known rows
+- [x] `:memory:` test helper and an employee factory; the fixed fixture
+      set lands with the first aggregate that needs it
 
 ### 4. Seed
 

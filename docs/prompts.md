@@ -220,3 +220,19 @@ I've also installed orbstack via brew in this Mac locally, so you can run Docker
 
 You can proceed with slice 2. Let me know in case of any trouble you face.
 ```
+
+### Follow-up
+
+```text
+Commit the working tree changes with a sensible message.
+```
+
+---
+
+## Slice 3 — database (2026-11-23)
+
+### Main prompt
+
+```text
+Push and continue
+```
