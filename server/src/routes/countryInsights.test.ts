@@ -85,7 +85,7 @@ describe('GET /api/insights/country/:code', () => {
     expect(response.body.minorUnit).toBe(0);
   });
 
-  // A reviewer will click every country in the dropdown, and a null reaching
+  // A user will click every country in the dropdown, and a null reaching
   // the formatter is a blank screen rather than an honest "nobody here".
   it('is an empty country, not an error, when nobody is active there', async () => {
     const response = await request(app()).get('/api/insights/country/DE');

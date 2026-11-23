@@ -80,6 +80,9 @@ each feature in [docs/acceptance-criteria.md](docs/acceptance-criteria.md).
   stay, and they leave every statistic.
 - **Job titles, departments and countries are fixed lists.** Free text would
   split "SDE2" and "SDE 2" and break every grouped figure.
+- **No component library.** Plain HTML and one stylesheet: these screens are
+  tables and forms, and a library would add weight without changing what HR
+  can do. With more screens I would adopt one.
 - **One Node process** serves the API and the React app. At this size there is
   nothing to gain from splitting them.
 

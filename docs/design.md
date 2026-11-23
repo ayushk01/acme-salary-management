@@ -138,7 +138,7 @@ the newest `salary_changes` row.
 | | Denormalised (chosen) | Derived from history |
 | --- | --- | --- |
 | Aggregates | Plain scan of `employees` over one index | A window or correlated subquery per employee before any aggregate |
-| Query to read | Short enough to explain in an interview | Noticeably harder |
+| Query to read | Short enough to explain in a minute | Noticeably harder |
 | Risk | The two can drift apart | Single source of truth |
 
 Chosen because every statistic in the product is an aggregate over current
