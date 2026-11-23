@@ -77,6 +77,45 @@ function conditionsFor(filters: EmployeeFilters): SQL | undefined {
  * synchronous in-process database the second query costs almost nothing, and
  * repeating the total on every row to save it is a poor trade.
  */
+
+/** Shared by the paged list and the export, so the two cannot drift apart. */
+const EMPLOYEE_COLUMNS = {
+  employeeCode: employees.employeeCode,
+  fullName: employees.fullName,
+  email: employees.email,
+  jobTitle: jobTitles.name,
+  department: departments.name,
+  countryCode: employees.countryCode,
+  countryName: countries.name,
+  currencyCode: countries.currencyCode,
+  currencyMinorUnit: countries.currencyMinorUnit,
+  salaryMinor: employees.salaryMinor,
+  hireDate: employees.hireDate,
+  status: employees.status,
+  leftDate: employees.leftDate,
+  updatedAt: employees.updatedAt,
+  updatedBy: employees.updatedBy,
+};
+
+/** Every match, unpaged, for the CSV export. Same filters, same ordering. */
+export function findEmployeesForExport(
+  db: AppDatabase,
+  filters: EmployeeFilters = {},
+): EmployeeRow[] {
+  const direction = filters.dir === 'desc' ? desc : asc;
+  const sortColumn = filters.sort === 'salary' ? employees.salaryMinor : employees.fullName;
+
+  return db
+    .select(EMPLOYEE_COLUMNS)
+    .from(employees)
+    .innerJoin(jobTitles, eq(jobTitles.id, employees.jobTitleId))
+    .innerJoin(departments, eq(departments.id, employees.departmentId))
+    .innerJoin(countries, eq(countries.code, employees.countryCode))
+    .where(conditionsFor(filters))
+    .orderBy(direction(sortColumn), asc(employees.employeeCode))
+    .all();
+}
+
 export function findEmployees(db: AppDatabase, filters: EmployeeFilters = {}): EmployeePage {
   const pageSize = filters.pageSize ?? DEFAULT_PAGE_SIZE;
   const page = filters.page ?? 1;
@@ -86,23 +125,7 @@ export function findEmployees(db: AppDatabase, filters: EmployeeFilters = {}): E
   const sortColumn = filters.sort === 'salary' ? employees.salaryMinor : employees.fullName;
 
   const rows = db
-    .select({
-      employeeCode: employees.employeeCode,
-      fullName: employees.fullName,
-      email: employees.email,
-      jobTitle: jobTitles.name,
-      department: departments.name,
-      countryCode: employees.countryCode,
-      countryName: countries.name,
-      currencyCode: countries.currencyCode,
-      currencyMinorUnit: countries.currencyMinorUnit,
-      salaryMinor: employees.salaryMinor,
-      hireDate: employees.hireDate,
-      status: employees.status,
-      leftDate: employees.leftDate,
-      updatedAt: employees.updatedAt,
-      updatedBy: employees.updatedBy,
-    })
+    .select(EMPLOYEE_COLUMNS)
     .from(employees)
     .innerJoin(jobTitles, eq(jobTitles.id, employees.jobTitleId))
     .innerJoin(departments, eq(departments.id, employees.departmentId))

@@ -115,12 +115,12 @@ per-field audit is cut — see the Cut section.*
 
 ### 11. CSV export
 
-- [ ] `GET /api/employees.csv` — same filters, every matching row
-- [ ] Chunked write, UTF-8 BOM, CRLF, salary as a **plain number** with the
+- [x] `GET /api/employees.csv` — same filters, every matching row
+- [x] Chunked write, UTF-8 BOM, CRLF, salary as a **plain number** with the
       currency code in its own column — never formatted money, so Excel
       treats the column as numeric and can total or sort it
-- [ ] Export button on the list page, reusing the URL's filters
-- [ ] Test: header row, and the row count matches the filtered total
+- [x] Export button on the list page, reusing the URL's filters
+- [x] Test: header row, and the row count matches the filtered total
 
 **— Must list ends here. Deploy, check the live URL, commit. —**
 

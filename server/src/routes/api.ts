@@ -10,6 +10,7 @@ import {
   editEmployee,
   markEmployeeAsLeft,
 } from '../services/employeeWriteService.js';
+import { writeEmployeesCsv } from '../services/exportService.js';
 import { countryOverview, jobOverview } from '../services/insightsService.js';
 import { ServiceError } from '../services/serviceError.js';
 import { validationError } from './errors.js';
@@ -118,6 +119,22 @@ export function createApiRouter(db: AppDatabase, clock: Clock): Router {
 
     const { country, ...rest } = parsed.data;
     res.json(listEmployees(db, { ...rest, countryCode: country }));
+  });
+
+  router.get('/employees.csv', (req, res) => {
+    const parsed = listQuery.safeParse(req.query);
+    if (!parsed.success) {
+      res.status(400).json(validationError(parsed.error));
+      return;
+    }
+
+    const { country, ...rest } = parsed.data;
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="acme-employees.csv"');
+
+    writeEmployeesCsv(db, { ...rest, countryCode: country }, (chunk) => res.write(chunk));
+    res.end();
   });
 
   router.get('/reference', (_req, res) => {

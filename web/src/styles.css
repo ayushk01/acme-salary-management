@@ -240,3 +240,8 @@ nav.top .who {
   font-size: 1.25rem;
   font-variant-numeric: tabular-nums;
 }
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}

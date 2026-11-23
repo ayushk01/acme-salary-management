@@ -16,7 +16,8 @@ const csv = async (query = ''): Promise<string> => {
 };
 
 /** Lines without the byte order mark, so assertions read plainly. */
-const linesOf = (text: string): string[] => text.replace(/^﻿/, '').trim().split('\r\n');
+const linesOf = (text: string): string[] =>
+  (text.charCodeAt(0) === 0xfeff ? text.slice(1) : text).trim().split('\r\n');
 
 beforeEach(() => {
   handle = createTestDatabase();
@@ -58,7 +59,11 @@ describe('GET /api/employees.csv', () => {
   // Excel has to see a number it can total and sort, not a string with a
   // currency symbol and thousands separators in it.
   it('writes the salary as a plain number with the currency beside it', async () => {
-    insertTestEmployee(handle.db, { employeeCode: 'EMP00001', countryCode: 'IN', salaryMinor: 1_250_000 });
+    insertTestEmployee(handle.db, {
+      employeeCode: 'EMP00001',
+      countryCode: 'IN',
+      salaryMinor: 1_250_000,
+    });
 
     const row = linesOf(await csv())[1] ?? '';
 
@@ -66,7 +71,11 @@ describe('GET /api/employees.csv', () => {
   });
 
   it('gives a currency without minor units no decimal point', async () => {
-    insertTestEmployee(handle.db, { employeeCode: 'EMP00001', countryCode: 'JP', salaryMinor: 8_000_000 });
+    insertTestEmployee(handle.db, {
+      employeeCode: 'EMP00001',
+      countryCode: 'JP',
+      salaryMinor: 8_000_000,
+    });
 
     const row = linesOf(await csv())[1] ?? '';
 
@@ -91,7 +100,7 @@ describe('GET /api/employees.csv', () => {
   it('starts with a byte order mark and ends its lines the way Excel expects', async () => {
     const text = await csv();
 
-    expect(text.startsWith('﻿')).toBe(true);
+    expect(text.charCodeAt(0)).toBe(0xfeff);
     expect(text).toContain('\r\n');
   });
 });

@@ -80,9 +80,14 @@ export function EmployeesPage() {
     <main>
       <div className="page-head">
         <h1>Employees</h1>
-        <Link className="button" to="/employees/new">
-          Add employee
-        </Link>
+        <div className="actions">
+          <a className="button" href={`/api/employees.csv${query === '' ? '' : `?${query}`}`}>
+            Export CSV
+          </a>
+          <Link className="button" to="/employees/new">
+            Add employee
+          </Link>
+        </div>
       </div>
 
       <form
