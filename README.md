@@ -6,7 +6,7 @@ keep salary records, and answer questions about how the organisation pays.
 
 **Live:** https://acme-salary-management-zobo.onrender.com
 
-**Demo video:** _to follow_
+**Demo video:** https://youtu.be/sQVCmQUsfUs
 
 It runs on a free tier that puts the container to sleep when nobody is using
 it. **The first load after a quiet spell can take up to a minute** while the
@@ -36,7 +36,7 @@ That serves the API and the UI together on http://localhost:3000, seeding
 in two terminals instead.
 
 ```bash
-npm test          # 130 tests, under a second
+npm test          # 132 tests, under a second
 npm run lint
 npm run typecheck
 ```
